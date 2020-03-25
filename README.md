@@ -12,12 +12,22 @@ El paquete utiliza **edge-js** para crear el reconocimiento de voz implementado 
 
 El proyecto aun está en desarrollo y no están implementada todas las funciones, pero puedes crear un reconocimiento perfecto si usas un archivo de reconocimiento XML siguiendo la documentación que puedes encontrar en <a href="https://www.w3.org/TR/speech-grammar">Speech Grammar W3C</a>
 
+## Build
+
+El paquete viene compilado para la versión de node.js 12.16.0, es posible hacer reconstrucciones para otras versiones de node, pero no se garantiza un correcto funcioamiento para versiones anteriores.
+
+Para construir el paquete para node, tan solo ejecutar el siguiente comando después de instalar las dependencias de desarrollo:
+
+```shell
+$ npm run rebuild
+```
+
+Si se quiere hacer uso del paquete en algún entorno de ejecución distinto como por ejemplo NW o Electrón hay que editar el _package.json_ y ajustar la configuracion como se indica en la documentación <a href="https://github.com/cmake-js/cmake-js">cmake-js</a>.
+
 ### Iniciar el reconocedor
 
 ```javascript
-const vc = require("voice-recognition");
-
-const recognizer = new vc();
+const recognizer = require("voice-recognition");
 ```
 
 ### Agregar gramáticas en XML
@@ -129,9 +139,7 @@ The project is still under development and not all functions are implemented, bu
 ### Start the recognizer
 
 ```javascript
-const vc = require("voice-recognition");
-
-const recognizer = new vc();
+const recognizer = require("voice-recognition");
 ```
 
 ### Add grammars in XML

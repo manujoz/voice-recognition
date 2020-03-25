@@ -1,34 +1,33 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.15)
 
 # Name of the project (will be the name of the plugin)
-project (voice_recognition)
+project (voice-recognition)
 
 # Essential include files to build a node addon,
 # you should add this line in every CMake.js based project.
 include_directories(${CMAKE_JS_INC})
 
 # Declare the source files location
-file(GLOB SOURCE_FILES "src/cpp/*.cpp" "src/cpp/*.h" "src/cpp/*.dll")
+file(GLOB SOURCE_FILES "src/cpp/*.cpp" "src/cpp/*.h")
 
 # This line will tell CMake that we're building a shared library
 # from the above source files
 # named after the project's name
-add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${CMAKE_JS_SRC})
+add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
 
-# Añadimos banderas para compilar con /clr
-target_compile_options(${PROJECT_NAME} PRIVATE /clr)
+# Flags to compile
+target_compile_options(${PROJECT_NAME} PRIVATE /Zc:twoPhase-)
 target_compile_options(${PROJECT_NAME} PRIVATE /fp:precise) #/fp:strict is incompatible with /clr
 
-# Añadimimos las propiedades del proyecto
-set_property(TARGET ${PROJECT_NAME} PROPERTY COMMON_LANGUAGE_RUNTIME "")
+# Add properties
 set_property(TARGET ${PROJECT_NAME} PROPERTY VS_GLOBAL_ROOTNAMESPACE ${PROJECT_NAME})
 set_property(TARGET ${PROJECT_NAME} PROPERTY VS_GLOBAL_KEYWORD "ManagedCProj")
 set_property(TARGET ${PROJECT_NAME} PROPERTY VS_GLOBAL_CLRSupport "true")
 set_property(TARGET ${PROJECT_NAME} PROPERTY DOTNET_TARGET_FRAMEWORK_VERSION "4.8")
 set_property(TARGET ${PROJECT_NAME} PROPERTY VS_GLOBAL_WindowsTargetPlatformVersion "10.0.18362.0")
-set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DOTNET_REFERENCES_COPY_LOCAL "true")
+set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DOTNET_REFERENCES_COPY_LOCAL "false")
 
-# Añadimos las referencias C#
+# Add assemblies
 set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DOTNET_REFERENCES 
 	"System" 
 	"System.Data"
@@ -39,31 +38,26 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DOTNET_REFERENCES
 	"System.Web.Abstractions" 
 	"System.Web.Extensions" 
 	"System.Speech"
-	"CsVoiceRecognition"
 )
 
-# Note: Modification of compiler flags is required for CLR compatibility now that we are using .resx files.
-string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-string(REPLACE "/RTC1" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DOTNET_REFERENCE_CsVoiceRecognition "bin/CsVoiceRecognition.dll")
 
-# This line will give our library file a .node extension 
-# without any "lib" prefix
-set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
+# Set common language runtime
+set_target_properties(${PROJECT_NAME} PROPERTIES 
+  PREFIX ""
+  SUFFIX ".node"
+  COMMON_LANGUAGE_RUNTIME ""
+) # "pure" and "safe" unsupported in VS 2017
 
-# Essential library files to link to a node addon,
-# you should add this line in every CMake.js based project.
-#set(LIBRARIES_FILES "mscoreess")
-target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB})
-#target_link_libraries(${PROJECT_NAME} ${LIBRARIES_FILES})
-
-# Include N-API wrappers
-execute_process(COMMAND node -p "require('./node_modules/node-addon-api').include"
-	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-	OUTPUT_VARIABLE NODE_ADDON_API_DIR
+# Add directories
+target_include_directories(${PROJECT_NAME}
+  PRIVATE ${CMAKE_SOURCE_DIR}/node_modules/node-addon-api
+  PRIVATE ${CMAKE_JS_INC})
+  
+# Add libraries
+target_link_libraries(${PROJECT_NAME}
+	PUBLIC
+    ${CMAKE_JS_LIB}
 )
-string(REPLACE "\n" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
-string(REPLACE "\"" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
-target_include_directories(${PROJECT_NAME} PRIVATE ${NODE_ADDON_API_DIR})
-
 
 ##message(STATUS "EJEMPLO DE IMPRIMIR MENSAJE")

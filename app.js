@@ -1,4 +1,5 @@
-/*const { VoiceRecognizer } = require("./src/voice-recognition");
+const { VoiceRecognizer } = require("./src/voice-recognition");
 
-const vr = new VoiceRecognizer();
-console.log( vr._stoped );*/
+const recognizer = new VoiceRecognizer();
+
+module.exports.recognizer = recognizer;

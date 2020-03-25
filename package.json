@@ -1,6 +1,6 @@
 {
   "name": "voice-recognition",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Voice recognition for node native",
   "keywords": [
     "voice",
@@ -10,15 +10,23 @@
   ],
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
-    "test": "node src/voice-recognition.js"
+    "test": "node test/test.js",
+    "clean": "cmake-js clean",
+    "build": "cmake-js build",
+    "rebuild": "cmake-js rebuild",
+    "build-nw": "",
+    "rebuild-nw": "",
+    "build-electron": "",
+    "rebuild-electron": ""
   },
   "author": {
     "name": "Manu Overa"
   },
   "license": "MIT",
   "dependencies": {
-    "bindings": "^1.5.0",
+    "bindings": "^1.5.0"
+  },
+  "devDependencies": {
     "node-addon-api": "^2.0.0"
   }
 }

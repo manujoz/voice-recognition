@@ -1,4 +1,4 @@
-#include "loadAssemblies.h";
+#include "loadAssemblies.h"
 
 void Assembler::ListenLoadAssemblies()
 {
