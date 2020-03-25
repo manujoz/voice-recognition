@@ -156,7 +156,8 @@
     <ClCompile Include="recognizer.cpp">
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Async</ExceptionHandling>
     </ClCompile>
-    <ClCompile Include="voiceRecognition.cpp">
+    <ClCompile Include="utils.cpp" />
+    <ClCompile Include="addon.cpp">
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Async</ExceptionHandling>
     </ClCompile>
   </ItemGroup>
@@ -174,8 +175,11 @@
     <Reference Include="System.Web.Extensions" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="includes.h" />
     <ClInclude Include="loadAssemblies.h" />
     <ClInclude Include="recognizer.h" />
+    <ClInclude Include="utils.h" />
+    <ClInclude Include="addon.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

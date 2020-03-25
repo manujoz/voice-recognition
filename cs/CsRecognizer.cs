@@ -11,7 +11,7 @@ namespace CsVoiceRecognition
     public class CsRecognizer
     {
         // Función que emite los eventos a CPP
-        public Func<string, string> emitEventToCpp;
+        public Func<string, string, string> emitEventToCpp;
 
         // Creamos la instancia estática para poder acceder desde C++ a la clase instanciada
         private static CsRecognizer oInstance;
@@ -68,10 +68,9 @@ namespace CsVoiceRecognition
          * @param   {string}    file            Ruta al archivo de gramática
          * @returns {void}
          */
-        public void AddGrammarXML(string datos)
+        public void AddGrammarXML(string path, string name)
         {
-            ClGrammarXMLFileData grData = JSON.Deserialize<ClGrammarXMLFileData>(datos);
-            Grammars.AddXML(grData.File, grData.Name);
+            Grammars.AddXML(path, name);
         }
 
         /** TODO: Esta función está por implementar
@@ -176,7 +175,7 @@ namespace CsVoiceRecognition
         public void EventAudioStateChange(object sender, AudioStateChangedEventArgs e)
         {
             string data = JSON.Serialize(e);
-            EventDispatch(data);
+            EventDispatch(data, "vc:audioState");
         }
 
         /**
@@ -191,7 +190,7 @@ namespace CsVoiceRecognition
         public void EventAudioLevelUpdate(object sender, AudioLevelUpdatedEventArgs e)
         {
             string data = JSON.Serialize(e);
-            EventDispatch(data);
+            EventDispatch(data, "vc:audioLevel");
         }
 
         /**
@@ -206,7 +205,7 @@ namespace CsVoiceRecognition
         public void EventAudiProblem(object sender, AudioSignalProblemOccurredEventArgs e)
         {
             string data = JSON.Serialize(e);
-            EventDispatch(data);
+            EventDispatch(data, "vc:audioProblem");
         }
 
         /**
@@ -221,7 +220,7 @@ namespace CsVoiceRecognition
         public void EventSpeechDetected(object sender, SpeechDetectedEventArgs e)
         {
             string data = JSON.Serialize(e);
-            EventDispatch(data);
+            EventDispatch(data, "vc:detected");
         }
 
         /**
@@ -241,7 +240,7 @@ namespace CsVoiceRecognition
             result.CreateRecognizer(e);
             string data = JSON.Serialize(result);
 
-            EventDispatch(data);
+            EventDispatch(data, "vc:recognized");
         }
 
         /**
@@ -260,7 +259,7 @@ namespace CsVoiceRecognition
             CsResult result = new CsResult();
             result.CreateHypothesized(e);
             string data = JSON.Serialize(result);
-            EventDispatch(data);
+            EventDispatch(data, "vc:hypothesized");
         }
 
         /**
@@ -279,7 +278,7 @@ namespace CsVoiceRecognition
             CsResult result = new CsResult();
             result.CreateRejected(e);
             string data = JSON.Serialize(result);
-            EventDispatch(data);
+            EventDispatch(data, "vc:rejected");
         }
 
         /**
@@ -297,7 +296,7 @@ namespace CsVoiceRecognition
             CsResult result = new CsResult();
             result.CreateCompleted(e);
             string data = JSON.Serialize(result);
-            EventDispatch(data);
+            EventDispatch(data, "vc:completed");
         }*/
 
         /**
@@ -308,9 +307,9 @@ namespace CsVoiceRecognition
          * @param   {string}    data            Datos en JSON creados de los eventos del motor de reconocimiento
          * @returns {string}                    Datos del evento serializados en JSON
          */
-        public void EventDispatch(string data)
+        public void EventDispatch(string data, string evName)
         {
-            emitEventToCpp( data );
+            emitEventToCpp( data, evName );
         }
     }
 
