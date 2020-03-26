@@ -6,7 +6,7 @@ You can find the english documentacion below.
 
 Reconocedor de voz y gramática en node.js sin necesidad de navegador ni plugins. Además no es necesario tener el foco en la aplicación para que el programa reconconozca la voz.
 
-El paquete utiliza **edge-js** para crear el reconocimiento de voz implementado en **C#**.
+Esta nueva versión de **voice-recognition** ha dejado de usar **edge-js** para pasar a convertirse en un módulo completamente nativo de node.js ofreciendo un rendimiento más eficiente y garantizando su funcionamiento en todos los entornos de node.js, también se evitan los dolores de cabeza que en ocasiones puede dar compilar _edge-js_ para entornos como NWJ o Electrón.
 
 **¡NOTA!**
 
@@ -14,7 +14,7 @@ El proyecto aun está en desarrollo y no están implementada todas las funciones
 
 ## Build
 
-El paquete viene compilado para la versión de node.js 12.16.0, es posible hacer reconstrucciones para otras versiones de node, pero no se garantiza un correcto funcioamiento para versiones anteriores.
+El paquete viene compilado para la versión de node.js 12.16.0, es posible hacer reconstrucciones para otras versiones de node, pero no se garantiza un correcto funcioamiento para versiones anteriores anteriores a la 12 ya que el módulo hace uso de _Worker Threads_ que está disponible solo a partir de la versión 11.7.0 de node.js y otros complementos que solo están disponibles en las versiones más modernas de nodejs.
 
 Para construir el paquete para node, tan solo ejecutar el siguiente comando después de instalar las dependencias de desarrollo:
 
@@ -22,12 +22,60 @@ Para construir el paquete para node, tan solo ejecutar el siguiente comando desp
 $ npm run rebuild
 ```
 
-Si se quiere hacer uso del paquete en algún entorno de ejecución distinto como por ejemplo NW o Electrón hay que editar el _package.json_ y ajustar la configuracion como se indica en la documentación <a href="https://github.com/cmake-js/cmake-js">cmake-js</a>.
+Si se quiere hacer uso del paquete en algún entorno de ejecución distinto como por ejemplo NWJS o Electrón hay dos maneras de compilar el módulo. La primera es editar el _package.json_ y modificar las siguientes líneas para ajustarlo a tu versión de NWJS o Electrón:
+
+```javascript
+"scripts": {
+    "test": "node test/test.js",
+    "clean": "cmake-js clean",
+    "build": "cmake-js build",
+    "rebuild": "cmake-js rebuild",
+    "build-nw": "cmake-js build --runtime=nw --runtime-version=<<YOUR-NW-VERSIONI>> --arch=x64",
+    "rebuild-nw": "cmake-js rebuild --runtime=nw --runtime-version=<<YOUR-NW-VERSIONI>> --arch=x64",
+    "build-electron": "cmake-js build --runtime=electron --runtime-version=<<YOUR-ELECTRON-VERSIONI>> --arch=x64",
+    "rebuild-electron": "cmake-js build --runtime=electron --runtime-version=<<YOUR-ELECTRON-VERSIONI>> --arch=x64"
+  }
+```
+
+Reemplazar el texto *\<\<YOUR-XX-VERSION>>* por la versión de NWJS o electrón en la que se vaya a compilar el módulo y luego ejecutar el script correspondiente en función de donde estés compilando el módulo
+
+```shell
+# Para NWJS
+$ npm run rebuild-nw
+
+# Para Electrón
+$ npm run rebuild-electron
+```
+
+También puedes realizar una compilación manual más específicas siguiendo las instrucciones de <a href="https://github.com/cmake-js/cmake-js">cmake-js</a>.
 
 ### Iniciar el reconocedor
 
 ```javascript
 const recognizer = require("voice-recognition");
+```
+
+### Opciones
+
+Se pueden configurar algunas opciones para el motor de reconocimiento.
+
+- **continuos**: _Boolean: (def: true)_
+- **sameThread**: _Boolean: (def: false)_
+
+#### continuos
+
+La opción _continuos_ inidica si el motoro de reconocimiento debe permanecer escuchando hasta que se le ordene parar. Por defecto es _**true**_, si se establece en _false_ el motor de reconocimiento se detendrá una vez haya realizado un reconocimiento.
+
+```javascript
+recognizer.continuos = false;
+```
+
+#### sameThread
+
+Indica si el motor de reconocimiento debe funcionar en el hilo principal de node o ejecutarse en otro hilo. Por defecto es _**false**_ ya que para evitar el bloqueo de la aplicación este se va a ejecutar en un hilo separado. Si se establece en _true_ el reconocedor de voz se ejecutará en el hilo principal y la aplicación quedará bloqueada hasta que se vayan realizando reconocimientos o el reconocedor se detenga.
+
+```javascript
+recognizer.sameThread = true;
 ```
 
 ### Agregar gramáticas en XML
@@ -116,7 +164,7 @@ recognizer.on( "vc:audioProblem", ( problem ) => {
 	console.log( problem );
 })
 ```
-_!**NOTA**! Poco a poco iré implementando más funcionalidades y cuando esté un poco más desarrollado lo colgare en Github. Hasta entonces es completamente funcional con estas caracterásticas descritas._
+_!**NOTA**! Poco a poco iré implementando más funcionalidades hasta entonces es completamente funcional con estas caracterásticas descritas._
 
 <br><br>
 
@@ -128,18 +176,78 @@ ______________________
 
 _Sorry for the english (Google Translator)_
 
-Voice and grammar recognizer in node.js without the need for a browser or plugins. In addition it is not necessary to have the focus on the application for the program to recognize the voice.
+Speech and grammar recognizer in node.js without browser or plugins. Furthermore, it is not necessary to have the focus on the application for the program to recognize the voice.
 
-The package uses **edge-js** to create the voice recognition implemented in **C#**.
+This new version of ** voice-recognition ** has stopped using ** edge-js ** to become a completely native node.js module offering more efficient performance and guaranteeing its operation in all node environments .js, headaches that can sometimes give compiling _edge-js_ for environments like NWJ or Electron are also avoided.
 
 **!NOTE!**
 
 The project is still under development and not all functions are implemented, but you can create a perfect recognition if you use an XML recognition file following the documentation you can find on <a href="https://www.w3.org/TR/speech-grammar">Speech Grammar W3C</a>
 
+## Build
+
+The package is compiled for the node.js version 12.16.0, it is possible to make reconstructions for other node versions, but a correct operation of the versions prior to 12 is not guaranteed. The module makes use of _Worker Threads_ which is Available only from version 11.7.0 of node.js and other plugins that are only available in the newer versions of nodejs.
+
+To build the node package, just run the following command after installing the development dependencies:
+
+```shell
+$ npm run rebuild
+```
+
+If you want to use the package in a different execution environment such as NWJS or Electron, there are two ways to compile the module. The first is to edit the _package.json_ and modify the following lines to suit your version of NWJS or Electron:
+
+```javascript
+"scripts": {
+    "test": "node test/test.js",
+    "clean": "cmake-js clean",
+    "build": "cmake-js build",
+    "rebuild": "cmake-js rebuild",
+    "build-nw": "cmake-js build --runtime=nw --runtime-version=<<YOUR-NW-VERSIONI>> --arch=x64",
+    "rebuild-nw": "cmake-js rebuild --runtime=nw --runtime-version=<<YOUR-NW-VERSIONI>> --arch=x64",
+    "build-electron": "cmake-js build --runtime=electron --runtime-version=<<YOUR-ELECTRON-VERSIONI>> --arch=x64",
+    "rebuild-electron": "cmake-js build --runtime=electron --runtime-version=<<YOUR-ELECTRON-VERSIONI>> --arch=x64"
+  }
+```
+
+Replace the text *\<\<YOUR-XX-VERSION>>* with the NWJS or electron version in which the module will be compiled and then execute the corresponding script depending on where you are compiling the module
+
+```shell
+# For NWJS
+$ npm run rebuild-nw
+
+# For Electrón
+$ npm run rebuild-electron
+```
+
+You can also do a more specific manual compilation by following the instructions in <a href="https://github.com/cmake-js/cmake-js">cmake-js</a>.
+
 ### Start the recognizer
 
 ```javascript
 const recognizer = require("voice-recognition");
+```
+
+### Options
+
+Some options can be configured for the recognition engine.
+
+- **continuos**: _Boolean: (def: true)_
+- **sameThread**: _Boolean: (def: false)_
+
+#### continuos
+
+The _continuous_ option indicates whether the recognition engine should continue listening until it is ordered to stop. The default is _**true**_, if it is set to _false_ the recognition engine will stop once it has made a recognition.
+
+```javascript
+recognizer.continuos = false;
+```
+
+#### sameThread
+
+Indicates whether the recognition engine should run on the main node thread or run on another thread. By default it is _**false**_ since to avoid blocking the application it will be executed in a separate thread. If set to _true_ the speech recognizer will run on the main thread and the application will be blocked until acknowledgments are performed or the recognizer stops.
+
+```javascript
+recognizer.sameThread = true;
 ```
 
 ### Add grammars in XML
@@ -229,6 +337,14 @@ recognizer.on( "vc:audioProblem", ( problem ) => {
 	console.log( problem );
 })
 ```
-_!**NOTE**! Little by little I will be implementing more functionalities and when I am a little more developed I will hang it on Github. Until then it is fully functional with these features described._
+_!**NOTE**! Little by little I will be implementing more functionalities until then it is fully functional with these described characteristics._
+
+__________________
+
+## Release Notes
+
+#### **0.3.0** version
+
+- Now the speech recognizer runs by default on a different thread than the main one in node.js, preventing the application listening process to block the main thread.
 
 
