@@ -35,7 +35,7 @@ class VoiceRecognizer extends events {
 				addon.listen();
 			})
 		} else {
-			this._worker = new Worker( path.resolve( "src", "worker.js" ) );
+			this._worker = new Worker( path.resolve( __dirname , "worker.js" ) );
 
 			this._worker.postMessage({
 				listen: true,
