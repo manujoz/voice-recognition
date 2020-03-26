@@ -1,5 +1,7 @@
 /**
- * EJECUTA EL ARCHIVO Y DI= "Tengo XX años"; 
+ * EJECUTA TEST Y DI= "Tengo XX años"; 
+ * 
+ * RUN TEST AND SAY = "I am XX years old"
  */
 
 
