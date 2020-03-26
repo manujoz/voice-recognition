@@ -1,6 +1,6 @@
 {
   "name": "voice-recognition",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Voice recognition for node native",
   "keywords": [
     "voice",
@@ -14,13 +14,17 @@
     "clean": "cmake-js clean",
     "build": "cmake-js build",
     "rebuild": "cmake-js rebuild",
-    "build-nw": "",
-    "rebuild-nw": "",
-    "build-electron": "",
-    "rebuild-electron": ""
+    "build-nw": "cmake-js build --runtime=nw --runtime-version=<<YOUR-NW-VERSIONI>> --arch=x64",
+    "rebuild-nw": "cmake-js rebuild --runtime=nw --runtime-version=<<YOUR-NW-VERSIONI>> --arch=x64",
+    "build-electron": "cmake-js build --runtime=electron --runtime-version=<<YOUR-ELECTRON-VERSIONI>> --arch=x64",
+    "rebuild-electron": "cmake-js build --runtime=electron --runtime-version=<<YOUR-ELECTRON-VERSIONI>> --arch=x64"
   },
   "author": {
     "name": "Manu Overa"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/manujoz/voice-recognition"
   },
   "license": "MIT",
   "dependencies": {

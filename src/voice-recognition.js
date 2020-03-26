@@ -1,5 +1,7 @@
 ﻿const fs = require("fs");
+const path = require("path");
 const addon = require('bindings')('voice-recognition');
+const { Worker } = require("worker_threads");
 const events = require( "events" ).EventEmitter;
 
 class VoiceRecognizer extends events {
@@ -7,14 +9,12 @@ class VoiceRecognizer extends events {
 	{
 		super();
 
-		//this.recognizer = null;
+		this.sameThread = false;
 		this.continuos = true;
-		this.options = null;
-		this._stoped = true;
-		
-		// Le enviamos al addon el emiter
 
-		addon._call_emit(this._get_result.bind(this));
+		this._worker = null;
+		this._stoped = true;
+		this._setedFunction = false;
 	}
 
 	/**
@@ -26,10 +26,34 @@ class VoiceRecognizer extends events {
 	 */
 	listen() 
 	{
-		this._stoped = false;
-		setImmediate(() => {
-			addon.listen();
-		})
+		if( this.sameThread ) {
+			this._set_function_emit();
+
+			this._stoped = false;
+
+			setImmediate(() => {
+				addon.listen();
+			})
+		} else {
+			this._worker = new Worker( path.resolve( "src", "worker.js" ) );
+
+			this._worker.postMessage({
+				listen: true,
+				continuos: this.continuos
+			});
+
+			this._worker.on( "message", response => {
+				this._get_result( response.evName, response.result );
+			});
+
+			this._worker.on( "error", error => {
+				console.error( "[voice-recognition]: ", error )
+			});
+
+			this._worker.on( "exit", () => {
+				console.log( "Sale del hilo de reconocimiento" );
+			});
+		}
 	}
 
 	/** TODO: Esta función está por implemtar en C#
@@ -43,13 +67,6 @@ class VoiceRecognizer extends events {
 	 */
 	set_input_from_wav( file = null )
 	{
-		if( !this.recognizer ) {
-			setTimeout(() => {
-				this.set_input_from_wav( file );
-			}, 500);
-			return;
-		}
-
 		if( !file || !fs.existsSync( file ) ) {
 			console.error( "[voice-recognition]: No se ha pasado un archivo válido para el reconocedor." )
 		}
@@ -85,13 +102,6 @@ class VoiceRecognizer extends events {
 	 */
 	add_grammar( grammar = null ) 
 	{
-		if( !this.recognizer ) {
-			setTimeout(() => {
-				this.add_grammar( grammar );
-			}, 500);
-			return;
-		}
-
 		console.warn( "[voice-recognition]: Esta función aun no está implementada." )
 
 		// TODO: Hacer lo que sea.
@@ -122,7 +132,34 @@ class VoiceRecognizer extends events {
 	 */
 	stop() 
 	{
-		this._stoped = true;
+		if( this.sameThread ) {
+			this._stoped = true;
+		} else {
+			this._worker.terminate().
+				then(() => {
+					this._worker = null;
+					console.log( "Sale del hilo de reconocimiento 2" );
+				});
+		}
+	}
+
+	/**
+	 * @method	_set_function_emit
+	 * 
+	 * Configura la función a la que el addon devolverá los resultados.
+	 * 
+	 * @returns	{void}
+	 */
+	_set_function_emit()
+	{
+		if( this._setedFunction ) {
+			return;
+		}
+		
+		// Le enviamos al addon el emiter
+
+		addon._call_emit(this._get_result.bind(this));
+		this._setedFunction = true;
 	}
 
 	/**
@@ -229,7 +266,7 @@ class VoiceRecognizer extends events {
 
 		this.emit("vc:recognized", response );
 
-		if( this.continuos && !this._stoped ) {
+		if( this.sameThread && this.continuos && !this._stoped ) {
 			this.listen();
 		}
 	}
@@ -263,7 +300,7 @@ class VoiceRecognizer extends events {
 
 		this.emit("vc:rejected", response );
 
-		if( this.continuos && !this._stoped ) {
+		if( this.sameThread && this.continuos && !this._stoped ) {
 			this.listen();
 		}
 	}
