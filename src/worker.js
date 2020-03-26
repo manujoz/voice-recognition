@@ -47,24 +47,6 @@ class WorkerVc
 			this._listen();
 		}
 	}
-
-	/**
-	 * @method	_set_function_emit
-	 * 
-	 * Configura la función a la que el addon devolverá los resultados.
-	 * 
-	 * @returns	{void}
-	 */
-	_set_function_emit() 
-	{
-		if( this._setedFunction ) {
-			return;
-		}
-		
-		// Le enviamos al addon el emiter
-
-		addon._call_emit(this._get_result.bind(this));
-	}
 }
 
 const worker = new WorkerVc();
