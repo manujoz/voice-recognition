@@ -1,6 +1,7 @@
 #include "addon.h"
 
-bool inizilied = false;
+bool inizialized = false;
+bool assemblersAutoLoad = false;
 
 /*
 * @function	triggerEventFromCs
@@ -50,6 +51,23 @@ void SetFunctionEventCSharp() {
 }
 
 /*
+* @function AssemblerLoads
+*
+* Carga los ensamblados en rutas persinalizadas
+*
+* @return   {void}
+*/
+void AssemblerLoads()
+{
+    if (assemblersAutoLoad == false) {
+        // Ponemos a la eschca la carga dez los ensamblados para que se busquen en la carpeta BIN
+        Assembler::ListenLoadAssemblies();
+
+        assemblersAutoLoad = true;
+    }
+}
+
+/*
 * @function VcInitialize
 *
 * Función que realiza todas las tareas necesarias al cargar el módulo
@@ -58,14 +76,14 @@ void SetFunctionEventCSharp() {
 */
 void VcInitialize()
 {
-    if (inizilied == false) {
+    if (inizialized == false) {
         // Ponemos a la eschca la carga dez los ensamblados para que se busquen en la carpeta BIN
-        Assembler::ListenLoadAssemblies();
+        AssemblerLoads();
 
         // Asignamos el triggerEvent
         SetFunctionEventCSharp();
 
-        inizilied = true;
+        inizialized = true;
     }
 }
 
@@ -216,6 +234,7 @@ napi_value VcGetEngineCulture(napi_env env, napi_callback_info info)
 
     return str;
 }
+
 /*
 * @function VcGetCultures
 *
@@ -238,6 +257,28 @@ napi_value VcGetCultures(napi_env env, napi_callback_info info)
     }
 
     VcInitialize();
+
+    napi_value str;
+
+    string cultures = _getCultures();
+    napi_create_string_utf8(env, cultures.c_str(), NAPI_AUTO_LENGTH, &str);
+    assert(status == napi_ok);
+
+    return str;
+}
+
+/*
+* @function _VCGetCultures
+*
+* Funcion estática que devuelve las culturas sin necesidad de instanciar la clase
+*
+* @return   {napi_string}       Estado de la solicitud
+*/
+napi_value _VCGetCultures(napi_env env, napi_callback_info info)
+{
+    napi_status status;
+
+    AssemblerLoads();
 
     napi_value str;
 
@@ -287,6 +328,10 @@ napi_value InitNode(napi_env env, napi_value exports)
 
     napi_property_descriptor get_cultures = DECLARE_NAPI_METHOD("get_cultures", VcGetCultures);
     status = napi_define_properties(env, exports, 1, &get_cultures);
+    assert(status == napi_ok);
+
+    napi_property_descriptor _get_cultures = DECLARE_NAPI_METHOD("_get_cultures", _VCGetCultures);
+    status = napi_define_properties(env, exports, 1, &_get_cultures);
     assert(status == napi_ok);
 
     return exports;

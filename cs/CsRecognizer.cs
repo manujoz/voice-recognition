@@ -62,6 +62,13 @@ namespace CsVoiceRecognition
             return oInstance;
         }
 
+        /**
+         * @method  Destroy
+         * 
+         * Destruye la instancia
+         * 
+         * @returns {voi} 
+         */
         private static void Destroy()
         {
             oInstance = null;
@@ -99,7 +106,7 @@ namespace CsVoiceRecognition
             }
 
             // Instanciamos el motor de reconocimiento
-            if( cultObj != null )
+            if ( cultObj != null )
             {
                 Engine = new SpeechRecognitionEngine(cultObj);
             } else
