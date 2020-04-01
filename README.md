@@ -52,8 +52,38 @@ También puedes realizar una compilación manual más específicas siguiendo las
 ### Iniciar el reconocedor
 
 ```javascript
-const recognizer = require("voice-recognition");
+const vr = require("voice-recognition");
+const recognizer = new vr();
 ```
+
+### Constructor
+
+Al instanciar reconocedor el motor de reconocimiento se ejecutará con el idioma predeterminado del sistema operativo conocido como cultura. Es posible instanciar el reconocedor para una cultura concreta que esté instalada en el sistema operatvio, para hacerlo hay que instanciar el reconocedor con una de las culturas aceptadas.
+
+```javascript
+const recognizer = new vr("es-ES");
+```
+
+Las culturas disponibles con reconocimiento de voz en Windows 10 son:
+
+- Español - España: (es-ES)
+- Español - México: (es-MX)
+- Inglés - EEUU: (en-US)
+- Inglés - Reino Unido: (en-GB)
+- Inglés - Canadá: (en-CA)
+- Inglés - Australiz: (en-AU)
+- Inglés - India: (en-IN)
+- Francés - Francia: (fr-FR)
+- Francés - Canadá: (fr-CA)
+- Alemán - Alemania: (de-DE)
+- Italiano - Italia: (it-IT)
+- Portugués - Brasil: (pt-BR)
+- Japonés - Japón: (ja-JP)
+- Chino - China (zh-CN)
+- Chino - Taiwan (zh-TW)
+- Chino - Hong Kong (zh-HK)
+
+Puedes instalar las diferentes culturas en Configuración -> Hora e idioma -> Idioma
 
 ### Opciones
 
@@ -77,6 +107,26 @@ Indica si el motor de reconocimiento debe funcionar en el hilo principal de node
 ```javascript
 recognizer.sameThread = true;
 ```
+
+### Obtener culturas instaladas
+
+Se pueden obtener las culturas instaladas en el sistema operativo con el siguiente método:
+
+```javascript
+let cultures = recognizer.get_installed_cultures()
+```
+
+Esto devolverá un array con las diferentes culturas instaladas ej.: ["es-ES","en-US","en-GB"]
+
+### Obtener cultura del motor
+
+Podemos obtener la cultura en la que se está ejecutando el motor de reoncoimiento con el siguiente método:
+
+```javascript
+let cultura = recognizer.get_engine_culture()
+```
+
+Esto devolverá un string con la cultura en la que se está ejecutando el motor de reconocimiento, ej.: _es-ES_
 
 ### Agregar gramáticas en XML
 
@@ -224,8 +274,38 @@ You can also do a more specific manual compilation by following the instructions
 ### Start the recognizer
 
 ```javascript
-const recognizer = require("voice-recognition");
+const vr = require("voice-recognition");
+const recognizer = new vr();
 ```
+
+### Constructor
+
+Upon instantiating recognizer the recognition engine will run with the default language of the operating system known as culture. It is possible to instantiate the recognizer for a specific culture that is installed in the operating system, to do so you must instantiate the recognizer with one of the accepted cultures.
+
+```javascript
+const recognizer = new vr("es-ES");
+```
+
+Las culturas disponibles con reconocimiento de voz en Windows 10 son:
+
+- Spanish - Spain: (es-ES)
+- Spanish - Mexico: (es-MX)
+- English - USA: (en-US)
+- English - United Kingdom: (en-GB)
+- English - Canada: (en-CA)
+- English - Australiz: (en-AU)
+- English - India: (en-IN)
+- French - France: (fr-FR)
+- French - Canada: (fr-CA)
+- German - Germany: (de-DE)
+- Italian - Italy: (it-IT)
+- Portuguese - Brazil: (pt-BR)
+- Japanese - Japan: (ja-JP)
+- Chinese - China (zh-CN)
+- Chinese - Taiwan (zh-TW)
+- Chinese - Hong Kong (zh-HK)
+
+You can install the different cultures in Settings -> Time and language -> Language
 
 ### Options
 
@@ -249,6 +329,26 @@ Indicates whether the recognition engine should run on the main node thread or r
 ```javascript
 recognizer.sameThread = true;
 ```
+
+### Get installed cultures
+
+The cultures installed in the operating system can be obtained with the following method:
+
+```javascript
+let cultures = recognizer.get_installed_cultures()
+```
+
+This will return an array with the different cultures installed eg: ["es-ES","en-US","en-GB"]
+
+### Get engine culture
+
+We can obtain the culture in which the recollection engine is running with the following method:
+
+```javascript
+let cultura = recognizer.get_engine_culture()
+```
+
+This will return a string with the culture in which the recognition engine is running, e.g .: _es-ES_
 
 ### Add grammars in XML
 
@@ -342,6 +442,13 @@ _!**NOTE**! Little by little I will be implementing more functionalities until t
 __________________
 
 ## Release Notes
+
+#### **1.0.0** version
+
+- The way the module is built is changed.
+- A rudimentary error control is added.
+- A method is added to obtain cultures installed in the system.
+- Added a method to get the culture in which the recognition engine is running.
 
 #### **0.3.0** version
 

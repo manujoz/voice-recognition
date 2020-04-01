@@ -18,3 +18,8 @@ struct _func_result
     napi_ref func;
     napi_threadsafe_function funcTh;
 } FuncResult;
+
+struct _globals
+{
+    std::string Culture;
+} Globals;
