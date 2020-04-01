@@ -11,6 +11,9 @@ const { VoiceRecognizer } = require("../src/voice-recognition.js");
 
 const recognizer = new VoiceRecognizer();
 
+console.log( "Installed cultures: " + JSON.stringify( recognizer.get_installed_cultures()));
+console.log( "Engine culture: " + recognizer.get_engine_culture());
+
 // Spanish grammar
 recognizer.add_grammar_from_xml( path.resolve( "test", "grammar-es.xml"), "edad");
 // English grammar (Delete comment and comment Spanish grammar line if you want use english grammar)

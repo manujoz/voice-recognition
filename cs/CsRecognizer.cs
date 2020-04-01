@@ -31,15 +31,17 @@ namespace CsVoiceRecognition
         // Audio input
         public string AudioInput;
 
+        // Cultura del reconocedor
+        public string Culture = "";
 
         /**
          * @method  Constructor
          * 
          * Constructo de la clase CsRecognizer.
          */
-        public CsRecognizer()
+        public CsRecognizer(string culture = "")
         {
-
+            instanceEngine(culture);
         }
 
         /**
@@ -49,15 +51,77 @@ namespace CsVoiceRecognition
          * 
          * @returns {CsRecognizer}      Clase instanciada.
          */
-        public static CsRecognizer Instance()
+        public static CsRecognizer Instance(string culture = "")
         {
 
             if (oInstance == null)
             {
-                oInstance = new CsRecognizer();
+                oInstance = new CsRecognizer(culture);
             }
 
             return oInstance;
+        }
+
+        private static void Destroy()
+        {
+            oInstance = null;
+        }
+
+        /**
+         * @method  instanceEngine
+         * 
+         * Instancia el motor de reconocimiento
+         * 
+         * @returns {void}
+         */
+        private void instanceEngine(string culture)
+        {
+            RecognizerInfo cultObj = null;
+
+            // Si pasamos una cultura específica comprobamos que este instalad
+            if (culture != "")
+            {
+                // Buscamos si la cultura para la que se va a crear está instalada
+                foreach (RecognizerInfo config in SpeechRecognitionEngine.InstalledRecognizers())
+                {
+                    if (config.Culture.Name.ToString() == culture)
+                    {
+                        cultObj = config;
+                        break;
+                    }
+                }
+
+                if (cultObj == null)
+                {
+                    Destroy();
+                    return;
+                }
+            }
+
+            // Instanciamos el motor de reconocimiento
+            if( cultObj != null )
+            {
+                Engine = new SpeechRecognitionEngine(cultObj);
+            } else
+            {
+                Engine = new SpeechRecognitionEngine();
+            }
+
+            // Carga el input de audio que se va a usar para el reconocimiento.
+            LoadAudioInput();
+
+            // Add a handler for the speech recognized event.  
+            Engine.AudioStateChanged += new EventHandler<AudioStateChangedEventArgs>(EventAudioStateChange);
+            Engine.AudioLevelUpdated += new EventHandler<AudioLevelUpdatedEventArgs>(EventAudioLevelUpdate);
+            Engine.AudioSignalProblemOccurred += new EventHandler<AudioSignalProblemOccurredEventArgs>(EventAudiProblem);
+            Engine.SpeechDetected += new EventHandler<SpeechDetectedEventArgs>(EventSpeechDetected);
+            Engine.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(EventSpeechRecognized);
+            Engine.SpeechHypothesized += new EventHandler<SpeechHypothesizedEventArgs>(EventSpeechHiposized);
+            Engine.SpeechRecognitionRejected += new EventHandler<SpeechRecognitionRejectedEventArgs>(EventSpeechRejected);
+            //Engine.RecognizeCompleted += new EventHandler<RecognizeCompletedEventArgs>(EventSpeechCompleted);
+
+            // Asignamos la propiedad de cultura
+            Culture = Engine.RecognizerInfo.Culture.ToString();
         }
 
         /**
@@ -70,7 +134,14 @@ namespace CsVoiceRecognition
          */
         public void AddGrammarXML(string path, string name)
         {
+            if (Engine == null)
+            {
+                emitEventToCpp("Engine recognizer is not instantiated", "vcpr:error");
+                return;
+            }
+
             Grammars.AddXML(path, name);
+            LoadGrammars();
         }
 
         /** TODO: Esta función está por implementar
@@ -87,6 +158,43 @@ namespace CsVoiceRecognition
         }
 
         /**
+         * @method  get_cultures
+         * 
+         * Devuelve un string JSON con las culturas instaladas en el dispositivo
+         * 
+         * @returns {string}      Culturas instaladas.
+         */
+        public static string get_cultures()
+        {
+            string cultures = "";
+
+            foreach (RecognizerInfo config in SpeechRecognitionEngine.InstalledRecognizers())
+            {
+                cultures += (cultures == "") ? "[" : ",";
+                cultures += "\"" + config.Culture.Name.ToString() + "\"";
+            }
+
+            if (cultures != "")
+            {
+                cultures += "]";
+            }
+
+            return cultures;
+        }
+
+        /**
+         * @method  get_engine_culutre
+         * 
+         * Devuelve la cultura del motor de reconocimiento
+         * 
+         * @returns {string}      Culturas instaladas.
+         */
+        public string get_engine_culutre()
+        {
+            return Culture;
+        }
+
+        /**
         * @method  LoadGrammars
         * 
         * Carga las gramáticas correspondientes en el motor de reconocimiento de voz
@@ -95,9 +203,16 @@ namespace CsVoiceRecognition
         */
         private void LoadGrammars()
         {
+            // Aisngamos la función de emitir eventos a CPP si no está asignada
+            if( Grammars.emitEventToCpp == null)
+            {
+                Grammars.emitEventToCpp = emitEventToCpp;
+            }
+
+            // Cargamos todas las gramáticas
             if (Grammars.Length() == 0)
             {
-                Engine.LoadGrammar(new DictationGrammar());
+                //Engine.LoadGrammar(new DictationGrammar());
             }
             else
             {
@@ -133,30 +248,22 @@ namespace CsVoiceRecognition
          */
         public void Listen()
         {
+            // Comprobmaos que el motor este instaciado
             if (Engine == null)
             {
-                // Cargamos el motor
-                Engine = new SpeechRecognitionEngine();
+                emitEventToCpp("Engine recognizer is not instantiated", "vcpr:error");
+                return;
+            }
 
-                // Cargamos la gramática en el motor de reconocimiento
-                LoadGrammars();
-
-                // Carga el input de audio que se va a usar para el reconocimiento.
-                LoadAudioInput();
-
-                // Add a handler for the speech recognized event.  
-                Engine.AudioStateChanged += new EventHandler<AudioStateChangedEventArgs>(EventAudioStateChange);
-                Engine.AudioLevelUpdated += new EventHandler<AudioLevelUpdatedEventArgs>(EventAudioLevelUpdate);
-                Engine.AudioSignalProblemOccurred += new EventHandler<AudioSignalProblemOccurredEventArgs>(EventAudiProblem);
-                Engine.SpeechDetected += new EventHandler<SpeechDetectedEventArgs>(EventSpeechDetected);
-                Engine.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(EventSpeechRecognized);
-                Engine.SpeechHypothesized += new EventHandler<SpeechHypothesizedEventArgs>(EventSpeechHiposized);
-                Engine.SpeechRecognitionRejected += new EventHandler<SpeechRecognitionRejectedEventArgs>(EventSpeechRejected);
-                //Engine.RecognizeCompleted += new EventHandler<RecognizeCompletedEventArgs>(EventSpeechCompleted);
+            // Comprobamos que haya gramáticas cargadas
+            if (Grammars.Length() == 0)
+            {
+                emitEventToCpp("You have not loaded any grammar into the recognition engine.", "vcpr:error");
+                return;
             }
 
             // Inciiamos el reconocimiento 
-            if(!IsListen)
+            if (!IsListen)
             {
                 IsListen = true;
                 Engine.Recognize();
