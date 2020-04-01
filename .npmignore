@@ -345,3 +345,4 @@ cs/
 build/*
 !build/[Rr]elease
 !bin/*.pdb
+.todo

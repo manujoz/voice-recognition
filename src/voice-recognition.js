@@ -22,13 +22,13 @@ class VoiceRecognizer extends events {
 			addon.constructorJS( culture );
 			this._isConstructed = true;
 		} else {
-			let installeds = this._get_installed_cultures( culture );
+			let installeds = VoiceRecognizer.get_installed_cultures_st();
 			if( installeds.indexOf( culture ) > -1 ) {
 				this.culture = culture;
-				this._isConstructed = true;
 				addon.constructorJS( culture );
+				this._isConstructed = true;
 			} else {
-				console.error( "[voice-recognition]: Culture [" + culture + "] is not installed on the device. Installed: " . JSON.stringify( installeds));
+				console.error( "[voice-recognition]: Culture [" + culture + "] is not installed on the device. Installed: " + JSON.stringify( installeds ));
 			}
 		}
 	}
@@ -271,9 +271,9 @@ class VoiceRecognizer extends events {
 	 * 
 	 * @returns	{array}		Array con las culturas instaladas
 	 */
-	_get_installed_cultures( culture )
+	static get_installed_cultures_st()
 	{
-		let cultures = addon.get_cultures( culture );
+		let cultures = addon._get_cultures();
 		
 		if( cultures != "" ) {
 			cultures = JSON.parse( cultures );
