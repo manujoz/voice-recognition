@@ -17,12 +17,13 @@ namespace Recognizer {
 	* @param	{srting}	Ruta del archivo XML que queremos a�adir a la gram�tica
 	* @returns	{void}		Cadena legible por C#
 	*/
-	void CppRecognizer::AddGrammarXML(string path, string name) 
+	void CppRecognizer::AddGrammarXML(string path, string name, string culture) 
 	{
+		System::String^ csCulture = Utils::convert_to_cs_string(culture);
 		System::String^ p = Utils::convert_to_cs_string(path);
 		System::String^ n = Utils::convert_to_cs_string(name);
 
-		CsRecognizer::Instance()->AddGrammarXML(p,n);
+		CsRecognizer::Instance(csCulture)->AddGrammarXML(p,n);
 	}
 
 	/*
@@ -32,9 +33,10 @@ namespace Recognizer {
 	*
 	* @returns	{void}		Cadena legible por C#
 	*/
-	void CppRecognizer::Listen() 
+	void CppRecognizer::Listen(string culture)
 	{
-		CsRecognizer::Instance()->Listen();
+		System::String^ csCulture = Utils::convert_to_cs_string(culture);
+		CsRecognizer::Instance(csCulture)->Listen();
 	}
 
 	/*
@@ -44,8 +46,9 @@ namespace Recognizer {
 	*
 	* @returns	{System::Boolean}		TRUE si est� escuchando, FALSE si no lo est� haciendo.
 	*/
-	System::Boolean CppRecognizer::IsListen() 
+	System::Boolean CppRecognizer::IsListen(string culture)
 	{
-		return CsRecognizer::Instance()->IsListen;
+		System::String^ csCulture = Utils::convert_to_cs_string(culture);
+		return CsRecognizer::Instance(csCulture)->IsListen;
 	}
 }

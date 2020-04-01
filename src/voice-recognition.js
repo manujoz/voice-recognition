@@ -5,16 +5,32 @@ const { Worker } = require("worker_threads");
 const events = require( "events" ).EventEmitter;
 
 class VoiceRecognizer extends events {
-	constructor() 
+	constructor( culture = "" ) 
 	{
 		super();
 
 		this.sameThread = false;
 		this.continuos = true;
+		this.culture = null;
 
 		this._worker = null;
 		this._stoped = true;
 		this._setedFunction = false;
+		this._isConstructed = false;
+
+		if( !culture ) {
+			addon.constructorJS( culture );
+			this._isConstructed = true;
+		} else {
+			let installeds = this._get_installed_cultures( culture );
+			if( installeds.indexOf( culture ) > -1 ) {
+				this.culture = culture;
+				this._isConstructed = true;
+				addon.constructorJS( culture );
+			} else {
+				console.error( "[voice-recognition]: Culture [" + culture + "] is not installed on the device. Installed: " . JSON.stringify( installeds));
+			}
+		}
 	}
 
 	/**
@@ -26,6 +42,15 @@ class VoiceRecognizer extends events {
 	 */
 	listen() 
 	{
+		// Detenemos si no se ha construido el addon
+
+		if( !this._isConstructed ) {
+			console.error( "[voice-recognition]: Addon is not instantiated" )
+			return;
+		}
+
+		// Ponemos a la escucha el motor
+
 		if( this.sameThread ) {
 			this._set_function_emit();
 
@@ -51,7 +76,7 @@ class VoiceRecognizer extends events {
 			});
 
 			this._worker.on( "exit", () => {
-				console.log( "Sale del hilo de reconocimiento" );
+				
 			});
 		}
 	}
@@ -67,6 +92,13 @@ class VoiceRecognizer extends events {
 	 */
 	set_input_from_wav( file = null )
 	{
+		// Detenemos si no se ha construido el addon
+
+		if( !this._isConstructed ) {
+			console.error( "[voice-recognition]: Addon is not instantiated" )
+			return;
+		}
+
 		if( !file || !fs.existsSync( file ) ) {
 			console.error( "[voice-recognition]: No se ha pasado un archivo válido para el reconocedor." )
 		}
@@ -84,6 +116,13 @@ class VoiceRecognizer extends events {
 	 */
 	add_grammar_from_xml( file = null, name = "mygrammar" ) 
 	{
+		// Detenemos si no se ha construido el addon
+
+		if( !this._isConstructed ) {
+			console.error( "[voice-recognition]: Addon is not instantiated" )
+			return;
+		}
+
 		if( !file || !fs.existsSync( file ) ) {
 			console.error( "[voice-recognition]: Grammar file does not exists." )
 			return false;
@@ -102,6 +141,12 @@ class VoiceRecognizer extends events {
 	 */
 	add_grammar( grammar = null ) 
 	{
+		// Detenemos si no se ha construido el addon
+
+		if( !this._isConstructed ) {
+			console.error( "[voice-recognition]: Addon is not instantiated" )
+			return;
+		}
 		console.warn( "[voice-recognition]: Esta función aun no está implementada." )
 
 		// TODO: Hacer lo que sea.
@@ -119,6 +164,12 @@ class VoiceRecognizer extends events {
 	 */
 	rem_grammar( grammar ) 
 	{
+		// Detenemos si no se ha construido el addon
+
+		if( !this._isConstructed ) {
+			console.error( "[voice-recognition]: Addon is not instantiated" )
+			return;
+		}
 		console.warn( "[voice-recognition]: Esta función aun no está implementada." )
 		return;
 	}
@@ -132,15 +183,66 @@ class VoiceRecognizer extends events {
 	 */
 	stop() 
 	{
+		// Detenemos si no se ha construido el addon
+
+		if( !this._isConstructed ) {
+			console.error( "[voice-recognition]: Addon is not instantiated" )
+			return;
+		}
+
 		if( this.sameThread ) {
 			this._stoped = true;
 		} else {
 			this._worker.terminate().
 				then(() => {
 					this._worker = null;
-					console.log( "Sale del hilo de reconocimiento 2" );
+					
 				});
 		}
+	}
+
+	/**
+	 * @method	get_engine_culture
+	 * 
+	 * Obtiene la cultura del motor de reconocimiento
+	 * 
+	 * @returns	{string}		Cultura que está usando el motor de reconocimiento.
+	 */
+	get_engine_culture() 
+	{
+		// Detenemos si no se ha construido el addon
+
+		if( !this._isConstructed ) {
+			console.error( "[voice-recognition]: Addon is not instantiated" )
+			return;
+		}
+
+		return addon.get_engine_culture();
+	}
+
+	/**
+	 * @method	get_installed_cultures
+	 * 
+	 * Obtiene las culturas instaladas en el dispositivo.
+	 * 
+	 * @returns	{array}		Array con las culturas instaladas
+	 */
+	get_installed_cultures()
+	{
+		// Detenemos si no se ha construido el addon
+
+		if( !this._isConstructed ) {
+			console.error( "[voice-recognition]: Addon is not instantiated" )
+			return;
+		}
+
+		let cultures = addon.get_cultures();
+		
+		if( cultures != "" ) {
+			cultures = JSON.parse( cultures );
+		}
+
+		return cultures;
 	}
 
 	/**
@@ -160,6 +262,24 @@ class VoiceRecognizer extends events {
 
 		addon._call_emit(this._get_result.bind(this));
 		this._setedFunction = true;
+	}
+
+	/**
+	 * @method	get_installed_cultures
+	 * 
+	 * Obtiene las culturas instaladas en el dispositivo al construir el addon.
+	 * 
+	 * @returns	{array}		Array con las culturas instaladas
+	 */
+	_get_installed_cultures( culture )
+	{
+		let cultures = addon.get_cultures( culture );
+		
+		if( cultures != "" ) {
+			cultures = JSON.parse( cultures );
+		}
+
+		return cultures;
 	}
 
 	/**
@@ -190,6 +310,8 @@ class VoiceRecognizer extends events {
 			this._rejected(result);
 		} else if( evName == "vc:completed" ){
 			this._completed(result);
+		} else if( evName == "vcpr:error" ){
+			this._error_addon(result);
 		}
 	}
 
@@ -318,6 +440,20 @@ class VoiceRecognizer extends events {
 		let response = this._construct_result( result );
 		
 		this.emit("vc:completed", response );
+	}
+
+	/**
+	 * @method	_error_addon
+	 * 
+	 * Maneja los errores devueltos por el addon
+	 * 
+	 * @param 	{string} 	error 			Error devuelto por el addin
+	 * @returns	{void}
+	 */
+	_error_addon( error )
+	{
+		console.error( "[voice-recognition]: " + error );
+		this.stop();
 	}
 
 	/**

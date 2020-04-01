@@ -11,8 +11,8 @@ namespace Recognizer
 		public:
 			CppRecognizer();
 
-			static void AddGrammarXML(string path, string name);
-			static void Listen();
-			static System::Boolean IsListen();
+			static void AddGrammarXML(string path, string name, string culture);
+			static void Listen(string culture);
+			static System::Boolean IsListen(string culture);
 	};
 }

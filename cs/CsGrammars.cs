@@ -1,13 +1,13 @@
-﻿//using System;
+﻿using System;
 using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
 using System.Speech.Recognition;
 
 namespace CsVoiceRecognition
 {
     public class CsGrammars
     {
+        public Func<string, string, string> emitEventToCpp;
+
         // Array con las gramáticas que se añaden a la clase.
         public List<Grammar> Items = new List<Grammar>();
 
@@ -49,7 +49,14 @@ namespace CsVoiceRecognition
         {
             if (!IsLoaded(gr))
             {
-                engine.LoadGrammar(gr);
+                try
+                {
+                    engine.LoadGrammar(gr);
+                }
+                catch (Exception e)
+                {
+                    emitEventToCpp(e.ToString(), "vcpr:error");
+                }
             }
         }
 
