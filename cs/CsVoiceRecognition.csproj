@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{8545BFAF-8AED-418E-8D0D-8B589EBBEECE}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>CsVoiceRecognition</RootNamespace>
+    <RootNamespace>VoiceRecognizer</RootNamespace>
     <AssemblyName>CsVoiceRecognition</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="CsGrammars.cs" />
     <Compile Include="CsRecognizer.cs" />
+    <Compile Include="CsRecognizerEvents.cs" />
     <Compile Include="CsResults.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

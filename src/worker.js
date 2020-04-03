@@ -7,15 +7,15 @@ class WorkerVc
 	{
 		this.continuos = true;
 
-		// Le enviamos al addon el emiter
+		// We send the addon the response function
 
-		addon._call_emit(this._get_result.bind(this));
+		addon.result_function(this._get_result.bind(this));
 	}
 
 	/**
 	 * @method	_listen
 	 * 
-	 * Pone a la escucha el motor de reconocimiento
+	 * Listen to the recognition engine.
 	 */
 	_listen() 
 	{
@@ -27,8 +27,8 @@ class WorkerVc
 	/**
 	 * @method	_get_result
 	 * 
-	 * Metodo que es llamado desde el addon cuando el motor de reconociemiento devuelve algún
-	 * evento
+	 * Method that is called from the addon when the recognition engine returns some 
+	 * event.
 	 * 
 	 * @param	{string}	evName		Nombre del evento al que hay que llamar
 	 * @param	{string}	result		Resultado del evento del motor de reconocimiento

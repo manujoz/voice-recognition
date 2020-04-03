@@ -1,24 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Speech.Recognition;
 
-namespace CsVoiceRecognition
+namespace VoiceRecognizer
 {
     public class CsGrammars
     {
         public Func<string, string, string> emitEventToCpp;
 
-        // Array con las gramáticas que se añaden a la clase.
+        // Array with the grammars that are added to the class.
         public List<Grammar> Items = new List<Grammar>();
 
         /**
          * @method  AddXML
          * 
-         * Añade una gramátcia a partir de un archivo XML.
+         * Add a grammar from an XML file.
          * 
-         * @param   {string}    file        Ruta al archivo a partir del cual se creará la gramátcia.
-         * @param   {string}    name        Nombre que tendrá la gramática.
-         * @returns {Grammar}               Objeto de gramática creado a partir del archivo.
+         * @param   {string}    file        Path to the file from which the grammar will be created.
+         * @param   {string}    name        Name that will have the grammar.
+         * @returns {Grammar}               Grammar object created from the file.
          */
         public Grammar AddXML(string file = null, string name = null)
         {
@@ -35,14 +37,14 @@ namespace CsVoiceRecognition
             Items.Add(ng);
             return ng;
         }
-       
+
         /**
          * @method  Load
          * 
-         * Carga una gramática en el motor de reconocimiento.
+         * Load a grammar into the recognition engine.
          * 
-         * @param   {Grammar}                    gr             Gramática que debe ser cargada.
-         * @param   {SpeechRecognitionEngine}    engine         Motor de reconociemiento en el que se va a cargar la gramática.
+         * @param   {Grammar}                    gr             Grammar to be loaded.
+         * @param   {SpeechRecognitionEngine}    engine         Recognition engine in which the grammar will be loaded.
          * @returns {void}
          */
         public void Load(Grammar gr, SpeechRecognitionEngine engine)
@@ -63,9 +65,9 @@ namespace CsVoiceRecognition
         /**
          * @method  LoadAll
          * 
-         * Carga todas las gramáticas en el motor de reconocimiento.
+         * Load all the grammars into the recognition engine.
          * 
-         * @param   {SpeechRecognitionEngine}    engine         Motor de reconociemiento en el que se va a cargar la gramática.
+         * @param   {SpeechRecognitionEngine}    engine         Recognition engine in which the grammar will be loaded.
          * @returns {void}
          */
         public void LoadAll(SpeechRecognitionEngine engine)
@@ -79,9 +81,9 @@ namespace CsVoiceRecognition
         /**
          * @method  Length
          * 
-         * Devuelve la cantidad de gramáticas que tenemos almacenadas en la clase.
+         * Returns the number of grammars we have stored in the class.
          * 
-         * @returns {int}           Cantidad de gramáticas cargadas.
+         * @returns {int}           Amount of grammars loaded.
          */
         public int Length()
         {
@@ -97,9 +99,9 @@ namespace CsVoiceRecognition
         /**
          * @method  Exists
          * 
-         * Devuelve si una gramática existe ya en la clase.
+         * Returns whether a grammar already exists in the class.
          * 
-         * @returns {bool}           TRUE si la gramática exise, FALSE si no existe.
+         * @returns {bool}           TRUE if the grammar exists, FALSE if it does not exist.
          */
         private bool Exists(string name)
         {
@@ -117,10 +119,10 @@ namespace CsVoiceRecognition
         /**
          * @method  IsLoaded
          * 
-         * Devuelve si una gramática está cargada en algún motor de reconocimiento.
+         * Returns whether a grammar is loaded into any recognition engine.
          * 
-         * @param   {Grammar}        Gramática que quermos comprobar si está cargada.
-         * @returns {bool}           TRUE si la gramática está cargada, FALSE si no lo está.
+         * @param   {Grammar}        Grammar that we want to check if it is loaded.
+         * @returns {bool}           TRUE if the grammar is loaded, FALSE if it is not.
          */
         private bool IsLoaded(Grammar grLoad)
         {
@@ -142,11 +144,11 @@ namespace CsVoiceRecognition
     /**
      * @object  ClGrammarXMLFileData
      * 
-     * Objeto para poder deserializar los datos enviados desde javascript cuando queremos cargar
-     * una archivo de gramática.
+     * Object to be able to deserialize the data sent from javascript when we want to load
+     * a grammar file.
      * 
-     * Javascript enviará un objeto {"file":"path/to/files.xml","name":"nombre de la gramatica"}, si
-     * queremos poder deserializarlo en C# es necesario este objeto.
+     * Javascript will send an object {"file": "path / to / files.xml", "name": "grammar name"}, if
+     * we want to be able to deserialize it in C # this object is necessary.
      */
     class ClGrammarXMLFileData
     {

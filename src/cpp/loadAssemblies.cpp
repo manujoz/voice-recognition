@@ -1,11 +1,25 @@
 #include "loadAssemblies.h"
 
+/*
+* @function ListenLoadAssemblies
+*
+* Listens for assembly load events and if not found looks for it on specified paths
+*
+* @return   {void}
+*/
 void Assembler::ListenLoadAssemblies()
 {
 	System::AppDomain^ currentDomain = AppDomain::CurrentDomain;
 	currentDomain->AssemblyResolve += gcnew ResolveEventHandler(Assembler::LoadFromBin);
 }
 
+/*
+* @function GetAssemblyPath
+*
+* Get the load path of the assemblies
+*
+* @return   {String^}
+*/
 String^ Assembler::GetAssemblyPath()
 {
 	try
@@ -27,6 +41,13 @@ String^ Assembler::GetAssemblyPath()
 	}
 }
 
+/*
+* @function LoadFromBin
+*
+* Loads assemblies from BIN directory of node package
+*
+* @return   {Assembly^ }
+*/
 Assembly^ Assembler::LoadFromBin(Object^ sender, ResolveEventArgs^ args)
 {
 
