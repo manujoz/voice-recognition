@@ -1,80 +1,130 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Reflection;
 using System.Speech.Recognition;
+using System.Collections;
 
-namespace CsVoiceRecognition
+namespace VoiceRecognizer
 {
     class CsResult
     {
-        public object Result;
-        public string Semantics;
+        public CsResultObject Result = new CsResultObject();
 
         /**
          * @method  CreateRecognizer
          * 
-         * Crea un objeto de resultado a partir de un evento de reconocido
+         * Create a result object from a recognized event
          * 
-         * @param   {SpeechRecognizedEventArgs}     Evento devuelto por el reconocedor.
+         * @param   {SpeechRecognizedEventArgs}     Event returned by the recognizer.
          * @returns {void}
          */
-        public void CreateRecognizer(SpeechRecognizedEventArgs e)
+        public void CreateRecognizer(SpeechRecognizedEventArgs e, CsGrammars Grammars)
         {
-            Result = e.Result;
-            Semantics = prConstructSemanticsJSON(e.Result.Semantics);
+            if( Grammars.Length() > 0 )
+            {
+                Result.Alternates = e.Result.Alternates;
+                Result.Homophones = e.Result.Homophones;
+                Result.ReplacementWordUnits = e.Result.ReplacementWordUnits;
+                Result.Words = e.Result.Words;
+            }
+
+            Result.Audio = e.Result.Audio;
+            Result.Confidence = e.Result.Confidence;
+            Result.Grammar = e.Result.Grammar;
+            Result.HomophoneGroupId = e.Result.HomophoneGroupId;
+            Result.Semantics = ConstructSemanticsJSON(e.Result.Semantics);
+            Result.Text = e.Result.Text;
         }
 
         /**
          * @method  CreateHypothesized
          * 
-         * Crea un objeto de resultado a partir de un evento de hypothesized
+         * Create a result object from a hypothesized event
          * 
-         * @param   {SpeechHypothesizedEventArgs}       Evento devuelto por el reconocedor.
+         * @param   {SpeechHypothesizedEventArgs}       Event returned by the recognizer.
          * @returns {void}
          */
-        public void CreateHypothesized(SpeechHypothesizedEventArgs e)
+        public void CreateHypothesized(SpeechHypothesizedEventArgs e, CsGrammars Grammars)
         {
-            Result = e.Result;
-            Semantics = prConstructSemanticsJSON(e.Result.Semantics);
+            if (Grammars.Length() > 0)
+            {
+                Result.Alternates = e.Result.Alternates;
+                Result.Homophones = e.Result.Homophones;
+                Result.ReplacementWordUnits = e.Result.ReplacementWordUnits;
+                Result.Words = e.Result.Words;
+            }
+
+            Result.Audio = e.Result.Audio;
+            Result.Confidence = e.Result.Confidence;
+            Result.Grammar = e.Result.Grammar;
+            Result.HomophoneGroupId = e.Result.HomophoneGroupId;
+            Result.Semantics = ConstructSemanticsJSON(e.Result.Semantics);
+            Result.Text = e.Result.Text;
         }
 
         /**
          * @method  CreateRejected
          * 
-         * Crea un objeto de resultado a partir de un evento de rejected
+         * Create a result object from a rejected event
          * 
-         * @param   {SpeechRecognitionRejectedEventArgs}    Evento devuelto por el reconocedor.
+         * @param   {SpeechRecognitionRejectedEventArgs}    Event returned by the recognizer.
          * @returns {void}
          */
-        public void CreateRejected(SpeechRecognitionRejectedEventArgs e)
+        public void CreateRejected(SpeechRecognitionRejectedEventArgs e, CsGrammars Grammars)
         {
-            Result = e.Result;
-            Semantics = prConstructSemanticsJSON(e.Result.Semantics);
+            if (Grammars.Length() > 0)
+            {
+                Result.Alternates = e.Result.Alternates;
+                Result.Homophones = e.Result.Homophones;
+                Result.ReplacementWordUnits = e.Result.ReplacementWordUnits;
+                Result.Words = e.Result.Words;
+            }
+
+            Result.Audio = e.Result.Audio;
+            Result.Confidence = e.Result.Confidence;
+            Result.Grammar = e.Result.Grammar;
+            Result.HomophoneGroupId = e.Result.HomophoneGroupId;
+            Result.Semantics = ConstructSemanticsJSON(e.Result.Semantics);
+            Result.Text = e.Result.Text;
         }
 
         /**
          * @method  CreateCompleted
          * 
-         * Crea un objeto de resultado a partir de un evento de completado
+         * Create a result object from a completion event
          * 
-         * @param   {RecognizeCompletedEventArgs}       Evento devuelto por el reconocedor.
+         * @param   {RecognizeCompletedEventArgs}       Event returned by the recognizer.
          * @returns {void}
          */
-        public void CreateCompleted(RecognizeCompletedEventArgs e)
+        public void CreateCompleted(RecognizeCompletedEventArgs e, CsGrammars Grammars)
         {
-            Result = e.Result;
-            Semantics = prConstructSemanticsJSON(e.Result.Semantics);
+            if (Grammars.Length() > 0)
+            {
+                Result.Alternates = e.Result.Alternates;
+                Result.Homophones = e.Result.Homophones;
+                Result.ReplacementWordUnits = e.Result.ReplacementWordUnits;
+                Result.Words = e.Result.Words;
+            }
+
+            Result.Audio = e.Result.Audio;
+            Result.Confidence = e.Result.Confidence;
+            Result.Grammar = e.Result.Grammar;
+            Result.HomophoneGroupId = e.Result.HomophoneGroupId;
+            Result.Semantics = ConstructSemanticsJSON(e.Result.Semantics);
+            Result.Text = e.Result.Text;
         }
 
         /**
          * @method  prConstructSemanticsJSON
          * 
-         * Construye un objeto de semántica en JSON manualmente para que pueda ser leido en javascript.
+         * Construct a JSON semantics object manually so that it can be read in javascript.
          * 
-         * @param   {SemanticValue}         Objeto de semántica devuelto por el motor de reconocimiento.
-         * @returns {string}                String en formato JSON con el objeto de semántica serializado.
+         * @param   {SemanticValue}         Semantics object returned by the recognition engine.
+         * @returns {string}                String in JSON format with serialized semantics object.
          */
-        private string prConstructSemanticsJSON(SemanticValue sem)
+        private string ConstructSemanticsJSON(SemanticValue sem)
         {
             string semantics = null;
             foreach (KeyValuePair<String, SemanticValue> child in sem)
@@ -91,5 +141,20 @@ namespace CsVoiceRecognition
 
             return semantics;
         }
+
+    }
+
+    class CsResultObject
+    {
+        public object   Alternates;
+        public object   Audio;
+        public object   Confidence;
+        public object   Grammar;
+        public object   Homophones;
+        public int      HomophoneGroupId;
+        public object   ReplacementWordUnits;
+        public string   Semantics;
+        public string   Text;
+        public object   Words;
     }
 }

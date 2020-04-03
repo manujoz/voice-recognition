@@ -4,14 +4,12 @@
  * RUN TEST AND SAY = "I am XX years old"
  */
 
-
 const path = require("path");
 const { VoiceRecognizer } = require("../src/voice-recognition.js");
 
+const recognizer = new VoiceRecognizer("es-ES");
 
-const recognizer = new VoiceRecognizer();
-
-console.log( "Installed cultures: " + JSON.stringify( recognizer.get_installed_cultures()));
+console.log( "Installed cultures: " + JSON.stringify( recognizer.installed_cultures()));
 console.log( "Engine culture: " + recognizer.get_engine_culture());
 
 // Spanish grammar

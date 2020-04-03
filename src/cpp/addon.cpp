@@ -1,15 +1,25 @@
 #include "addon.h"
 
-bool inizialized = false;
-bool assemblersAutoLoad = false;
+/*
+* @function Init
+*
+* Function that performs all the necessary tasks when loading the module
+*
+* @return   {void}
+*/
+void Init() 
+{
+    // Assign the dispatchEventFromCS function to the emitEventToCpp of the Recognizer class in C#
+    CS::recognizer->emitEventToCpp = gcnew System::Func<System::String^, System::String^, System::String^>(dispatchEventFromCs);
+}
 
+// TODO: Si falla el reconocedor y no envia eventos probar quitando la comprobación de función vacia en (dispatchEventFromCs) Linea 27.
 /*
 * @function	triggerEventFromCs
 *
-* Función que recibe los eventos del motor de reconocimiento en CS. Esta función es asignada
-* a la biblioteca CS en el constructor de la clase CppRecognizer.
+* Function that receives the events of the recognition engine in CS.
 *
-* @returns	{System::String}	Devuelve un string porque es necesaria la devoluci�n para el funcionamiento
+* @returns	{nullptr}
 */
 System::String^ dispatchEventFromCs(System::String^ data, System::String^ evName)
 {
@@ -18,8 +28,8 @@ System::String^ dispatchEventFromCs(System::String^ data, System::String^ evName
     napi_value params[2];
 
     // Convertimos los System::String en std::string
-    string stringName = msclr::interop::marshal_as<string>(evName);
-    string stringData = msclr::interop::marshal_as<string>(data);
+    string stringName = Utils::convert_from_cs_string(evName);
+    string stringData = Utils::convert_from_cs_string(data);
 
     // Convertimos los std::string en javascript Strings
     napi_create_string_utf8(FuncResult.env, stringName.c_str(), NAPI_AUTO_LENGTH, &params[0]);
@@ -36,164 +46,123 @@ System::String^ dispatchEventFromCs(System::String^ data, System::String^ evName
     return nullptr;
 }
 
-/*
-* @function	SetTriggerEvent
-*
-* Se asigna el triggerEvent a la clase de reconocimiento de C#
-*
-* @returns	{void}
-*/
-void SetFunctionEventCSharp() {
-    // Asignamos el TriggerEvent para escuchar los eventos enviados por el motor de reconocimiento
-
-    System::String^ csCulture = convert_to_cs_string(Globals.Culture);
-    CsRecognizer::Instance(csCulture)->emitEventToCpp = gcnew System::Func<System::String^, System::String^, System::String^>(dispatchEventFromCs);
-}
-
-/*
-* @function AssemblerLoads
-*
-* Carga los ensamblados en rutas persinalizadas
-*
-* @return   {void}
-*/
-void AssemblerLoads()
-{
-    if (assemblersAutoLoad == false) {
-        // Ponemos a la eschca la carga dez los ensamblados para que se busquen en la carpeta BIN
-        Assembler::ListenLoadAssemblies();
-
-        assemblersAutoLoad = true;
-    }
-}
-
-/*
-* @function VcInitialize
-*
-* Función que realiza todas las tareas necesarias al cargar el módulo
-*
-* @return   {void}
-*/
-void VcInitialize()
-{
-    if (inizialized == false) {
-        // Ponemos a la eschca la carga dez los ensamblados para que se busquen en la carpeta BIN
-        AssemblerLoads();
-
-        // Asignamos el triggerEvent
-        SetFunctionEventCSharp();
-
-        inizialized = true;
-    }
-}
-
-/*
-* @function	_getCultureEngine
-*
-* Obitiene la cultura del motor de reconocimiento
-*
-* @returns	{string}
-*/
-string _getCultureEngine()
-{
-    System::String^ csCulture = convert_to_cs_string(Globals.Culture);
-    System::String^ Culture = CsRecognizer::Instance(csCulture)->get_engine_culutre();
-    return msclr::interop::marshal_as<string>(Culture);
-}
-
-/*
-* @function	_getCultures
-*
-* Obtiene las culturas instaladas en el sistema
-*
-* @returns	{string}
-*/
-string _getCultures() 
-{
-    System::String^ Cultures = CsRecognizer::get_cultures();
-
-    return msclr::interop::marshal_as<string>(Cultures);
-}
 
 
 #pragma unmanaged
 
+/*
+* @function Constructor
+*
+* Initialize the recognition engine with a given culture.
+*
+* @return   {boolean}       TRUE if is initialized, FALS if not.
+*/
 napi_value Constructor(napi_env env, napi_callback_info info)
 {
     napi_status status;
-    
-    // Obtenemos la cultura pasada
+
+    // Get the past culture
     size_t argc = 1;
     napi_value args[1];
     status = napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
     assert(status == napi_ok);
 
-    Globals.Culture = get_javascript_string(env, args[0]);
+    string culture = Utils::get_javascript_string(env, args[0]);
 
-    // Incializams el componente al cargar el modulo nativo
+    // Check if culture is installed
+    if (culture != "") {
+        if (!ManagedRecognizer::_isInstalledCulture(culture)) {
+            return Utils::create_napi_boolean(env,false);
+        }
+    }
 
-    VcInitialize();
+    // Instantiate the recognition engine
+    ManagedRecognizer::_constructor(culture);
 
-    return nullptr;
+    return Utils::create_napi_boolean(env, true);
 }
 
 /*
-* @function VcCallEmit
+* @function SetResultFunction
 *
-* Configura la emisión de evento hacia javascript
+* Set the event broadcast to javascript
 *
-* @return   {napi_string}       Estado de la solicitud
+* @return   {napi_string}
 */
-napi_value VcSetResultFunction(napi_env env, napi_callback_info info)
+napi_value SetResultFunction(napi_env env, napi_callback_info info)
 {
     napi_status status;
     napi_value result;
-    
-    // Obtenemos la función que re resultado
+
+    // Get javascript result function
     size_t argc = 1;
     napi_value args[1];
     status = napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
     assert(status == napi_ok);
-    
+
     if (argc < 1) {
         napi_throw_type_error(env, nullptr, "You must provide one argument");
         return nullptr;
     }
 
-    // Creamos la función persistente
+    // Persisnten function
     FuncResult.env = env;
-    
     status = napi_get_global(env, &FuncResult.global);
     assert(status == napi_ok);
-    
-    napi_create_reference(env, args[0], 1, &FuncResult.func);   
-   
+
+    napi_create_reference(env, args[0], 1, &FuncResult.func);
+
     return nullptr;
 }
 
 /*
-* @function Listen
+* @function GetInstalledCultures
 *
-* Pone a la escucha el reconocedor de voz
+* Devuelve las culturas instaladas en el motor de reconocimiento
 *
-* @return   {napi_string}       Estado de la solicitud
+* @return   {napi_string} 
 */
-napi_value VcListen(napi_env env, napi_callback_info info) 
+napi_value GetInstalledCultures(napi_env env, napi_callback_info info)
 {
+    napi_status status;
 
-    CppRecognizer::Listen(Globals.Culture);
+    string cultures = ManagedRecognizer::_getInstalledCultures();
 
-    return nullptr;
-};
+    napi_value str;
+    napi_create_string_utf8(env, cultures.c_str(), NAPI_AUTO_LENGTH, &str);
+    assert(status == napi_ok);
+
+    return str;
+}
 
 /*
-* @function Listen
+* @function GetEngineCulture
 *
-* Pone a la escucha el reconocedor de voz
+* Returns the culture of the recognition engine
 *
-* @return   {napi_string}       Estado de la solicitud
+* @return   {napi_string}
 */
-napi_value VcAddGrammarXML(napi_env env, napi_callback_info info)
+napi_value GetEngineCulture(napi_env env, napi_callback_info info)
+{
+    napi_status status;
+
+    string culture = ManagedRecognizer::_getEngineCulture();
+
+    napi_value str;
+    napi_create_string_utf8(env, culture.c_str(), NAPI_AUTO_LENGTH, &str);
+    assert(status == napi_ok);
+
+    return str;
+}
+
+/*
+* @function AddGrammarXML
+*
+* Add a grammar from an XML file
+*
+* @return   {napi_string}
+*/
+napi_value AddGrammarXML(napi_env env, napi_callback_info info)
 {
     napi_status status;
 
@@ -207,138 +176,86 @@ napi_value VcAddGrammarXML(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    string path = get_javascript_string(env, args[0]);
-    string name = get_javascript_string(env, args[1]);
+    string path = Utils::get_javascript_string(env, args[0]);
+    string name = Utils::get_javascript_string(env, args[1]);
 
-    CppRecognizer::AddGrammarXML(path,name,Globals.Culture);
+    ManagedRecognizer::_addGrammarXML(path, name);
 
     return nullptr;
 };
 
 /*
-* @function VcGetEngineCulture
+* @function Listen
 *
-* Devuelve la cultura del motor de reconocimiento
+* Listen to the recognition engine
 *
-* @return   {napi_string}       Estado de la solicitud
+* @return   {napi_string}
 */
-napi_value VcGetEngineCulture(napi_env env, napi_callback_info info)
+napi_value Listen(napi_env env, napi_callback_info info)
 {
-    napi_status status;
-
-    string culture = _getCultureEngine();
-
-    napi_value str;
-    napi_create_string_utf8(env, culture.c_str(), NAPI_AUTO_LENGTH, &str);
-    assert(status == napi_ok);
-
-    return str;
-}
-
-/*
-* @function VcGetCultures
-*
-* Devuelve las culturas instaladas en el motor de reconocimiento
-*
-* @return   {napi_string}       Estado de la solicitud
-*/
-napi_value VcGetCultures(napi_env env, napi_callback_info info)
-{
-    napi_status status;
-
-    // Obtenemos la cultura pasada
-    size_t argc = 1;
-    napi_value args[1];
-    status = napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
-    assert(status == napi_ok);
-
-    if (argc > 0) {
-        Globals.Culture = get_javascript_string(env, args[0]);
-    }
-
-    VcInitialize();
-
-    napi_value str;
-
-    string cultures = _getCultures();
-    napi_create_string_utf8(env, cultures.c_str(), NAPI_AUTO_LENGTH, &str);
-    assert(status == napi_ok);
-
-    return str;
-}
-
-/*
-* @function _VCGetCultures
-*
-* Funcion estática que devuelve las culturas sin necesidad de instanciar la clase
-*
-* @return   {napi_string}       Estado de la solicitud
-*/
-napi_value _VCGetCultures(napi_env env, napi_callback_info info)
-{
-    napi_status status;
-
-    AssemblerLoads();
-
-    napi_value str;
-
-    string cultures = _getCultures();
-    napi_create_string_utf8(env, cultures.c_str(), NAPI_AUTO_LENGTH, &str);
-    assert(status == napi_ok);
-
-    return str;
-}
-
+    ManagedRecognizer::_listen();
+    return nullptr;
+};
 
 
 #define DECLARE_NAPI_METHOD(name, func) { name, 0, func, 0, 0, 0, napi_default, 0 }
 
+
 /*
 * @function InitNode
 *
-* Función que crea el addon
+* Function that creates the addon
 *
-* @return   {napi_string}       Estado de la solicitud
+* @return   {napi_value}
 */
-napi_value InitNode(napi_env env, napi_value exports) 
+napi_value InitNode(napi_env env, napi_value exports)
 {
     napi_status status;
 
-    // Creamos a la función de escucha
+    // Managed assemblies load
+    // . . . . . . . . . . . . . . . . . 
 
+    Utils::assemblerLoads();
+
+    // Invoke Init function
+    // . . . . . . . . . . . . . . . . . 
+
+    Init();
+
+    // Create the addon methods
+    // . . . . . . . . . . . . . . . . . 
+
+    // Constructor
     napi_property_descriptor constructorJS = DECLARE_NAPI_METHOD("constructorJS", Constructor);
     status = napi_define_properties(env, exports, 1, &constructorJS);
     assert(status == napi_ok);
 
-    napi_property_descriptor call_emit = DECLARE_NAPI_METHOD("_call_emit", VcSetResultFunction);
-    status = napi_define_properties(env, exports, 1, &call_emit);
+    // Result function emitter to javascript
+    napi_property_descriptor result_function = DECLARE_NAPI_METHOD("result_function", SetResultFunction);
+    status = napi_define_properties(env, exports, 1, &result_function);
     assert(status == napi_ok);
 
-    napi_property_descriptor listen = DECLARE_NAPI_METHOD("listen", VcListen);
-    status = napi_define_properties(env, exports, 1, &listen);
+    // Get installed cultures
+    napi_property_descriptor get_installed_cultures = DECLARE_NAPI_METHOD("get_installed_cultures", GetInstalledCultures);
+    status = napi_define_properties(env, exports, 1, &get_installed_cultures);
     assert(status == napi_ok);
 
-    napi_property_descriptor add_grammar_xml = DECLARE_NAPI_METHOD("add_grammar_XML", VcAddGrammarXML);
-    status = napi_define_properties(env, exports, 1, &add_grammar_xml);
-    assert(status == napi_ok);
-
-    napi_property_descriptor get_engine_culture = DECLARE_NAPI_METHOD("get_engine_culture", VcGetEngineCulture);
+    // Get engine culture
+    napi_property_descriptor get_engine_culture = DECLARE_NAPI_METHOD("get_engine_culture", GetEngineCulture);
     status = napi_define_properties(env, exports, 1, &get_engine_culture);
     assert(status == napi_ok);
 
-    napi_property_descriptor get_cultures = DECLARE_NAPI_METHOD("get_cultures", VcGetCultures);
-    status = napi_define_properties(env, exports, 1, &get_cultures);
+    // Add a grammar from an XML file
+    napi_property_descriptor add_grammar_xml = DECLARE_NAPI_METHOD("add_grammar_XML", AddGrammarXML);
+    status = napi_define_properties(env, exports, 1, &add_grammar_xml);
     assert(status == napi_ok);
 
-    napi_property_descriptor _get_cultures = DECLARE_NAPI_METHOD("_get_cultures", _VCGetCultures);
-    status = napi_define_properties(env, exports, 1, &_get_cultures);
+    napi_property_descriptor listen = DECLARE_NAPI_METHOD("listen", Listen);
+    status = napi_define_properties(env, exports, 1, &listen);
     assert(status == napi_ok);
 
     return exports;
 }
 
 NAPI_MODULE(NODE_GYP_MODULE_NAME, InitNode)
-
-
-
 
