@@ -152,10 +152,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="globals.cpp" />
     <ClCompile Include="loadAssemblies.cpp" />
-    <ClCompile Include="recognizer.cpp">
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Async</ExceptionHandling>
-    </ClCompile>
     <ClCompile Include="utils.cpp" />
     <ClCompile Include="addon.cpp">
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Async</ExceptionHandling>
@@ -175,9 +173,9 @@
     <Reference Include="System.Web.Extensions" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="globals.h" />
     <ClInclude Include="includes.h" />
     <ClInclude Include="loadAssemblies.h" />
-    <ClInclude Include="recognizer.h" />
     <ClInclude Include="utils.h" />
     <ClInclude Include="addon.h" />
   </ItemGroup>

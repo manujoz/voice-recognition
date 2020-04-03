@@ -11,45 +11,37 @@ class VoiceRecognizer extends events {
 
 		this.sameThread = false;
 		this.continuos = true;
-		this.culture = null;
 
 		this._worker = null;
 		this._stoped = true;
 		this._setedFunction = false;
-		this._isConstructed = false;
+		this._isConstructed = true;
 
-		if( !culture ) {
-			addon.constructorJS( culture );
-			this._isConstructed = true;
-		} else {
-			let installeds = VoiceRecognizer.get_installed_cultures_st();
-			if( installeds.indexOf( culture ) > -1 ) {
-				this.culture = culture;
-				addon.constructorJS( culture );
-				this._isConstructed = true;
-			} else {
-				console.error( "[voice-recognition]: Culture [" + culture + "] is not installed on the device. Installed: " + JSON.stringify( installeds ));
-			}
+		let installeds = this.installed_cultures();
+
+		if( !addon.constructorJS( culture )) {
+			this._isConstructed = false;
+			console.error( "[voice-recognition]: Culture [" + culture + "] is not installed on the device. Installed: " + JSON.stringify(installeds));
 		}
 	}
 
 	/**
 	 * @method	listen
 	 *
-	 * Pone a la escucha el motor de reconocimiento para esuchar una frase.
+	 * Listen to the recognition engine to hear a phrase.
 	 *
 	 * @returns	{void}
 	 */
 	listen() 
 	{
-		// Detenemos si no se ha construido el addon
+		// We stop if the addon has not been built
 
 		if( !this._isConstructed ) {
 			console.error( "[voice-recognition]: Addon is not instantiated" )
 			return;
 		}
 
-		// Ponemos a la escucha el motor
+		// We listen to the engine
 
 		if( this.sameThread ) {
 			this._set_function_emit();
@@ -84,10 +76,10 @@ class VoiceRecognizer extends events {
 	/** TODO: Esta función está por implemtar en C#
 	 * @method	set_input_from_wav
 	 * 
-	 * Le dice al reconocedor desde que archivo de audio va a reconocer. Si este no se asigna,
-	 * el reconocedor, lo hará directamentes desde el micrófono.
+	 * It tells the recognizer from which audio file it will recognize. If this is not assigned, 
+	 * the recognizer will do so directly from the microphone.
 	 * 
-	 * @param 	{string} 	file 			Ruta al archivo de audio desde el que queremos el reconocimiento
+	 * @param 	{string} 	file 			Path to the audio file from which we want recognition.
 	 * @returns	{void}
 	 */
 	set_input_from_wav( file = null )
@@ -109,9 +101,9 @@ class VoiceRecognizer extends events {
 	/**
 	 * @method	add_grammar_from_xml
 	 * 
-	 * Asigna una gramática al reconocedor desde un archivo.
+	 * Assign a grammar to the recognizer from a file.
 	 * 
-	 * @param	{string}	file 			Ruta al archivo XML que contiene la grmática.
+	 * @param	{string}	file 			Path to the XML file containing the grammar.
 	 * @returns	{void}
 	 */
 	add_grammar_from_xml( file = null, name = "mygrammar" ) 
@@ -131,12 +123,12 @@ class VoiceRecognizer extends events {
 		addon.add_grammar_XML( file, name );
 	}
 
-	/** TODO: Esta función está por implementar-
+	/** TODO: This function is yet to be implemented.
 	 * @method	add_grammar
 	 * 
-	 * Añade gramática programática al programa de reconocimiento de voz.
+	 * Add programmatic grammar to the speech recognition program.
 	 * 
-	 * @param 	{object} 	grammar 		Objeto con la grmática que queremos añadir
+	 * @param 	{object} 	grammar 		Object with the grammar we want to add.
 	 * @returns	{void}
 	 */
 	add_grammar( grammar = null ) 
@@ -154,12 +146,12 @@ class VoiceRecognizer extends events {
 		//this.recognizer.add_grammar();
 	}
 
-	/** TODO: Esta función está por implementar.
+	/** TODO: This function is yet to be implemented.
 	 * @method	rem_grammar
 	 * 
-	 * Elimina una gramática del reconocedor
+	 * Remove a grammar from the recognizer.
 	 * 
-	 * @param 	{???} 		grammar 		La gramática que queremos eliminar del objeto
+	 * @param 	{???} 		grammar 		The grammar we want to remove from the object.
 	 * @returns	{void}
 	 */
 	rem_grammar( grammar ) 
@@ -177,7 +169,7 @@ class VoiceRecognizer extends events {
 	/**
 	 * @method	stop
 	 *
-	 * Detiene el reconocimiento de voz
+	 * Stop speech recognition.
 	 *
 	 * @returns	{void}
 	 */
@@ -204,9 +196,9 @@ class VoiceRecognizer extends events {
 	/**
 	 * @method	get_engine_culture
 	 * 
-	 * Obtiene la cultura del motor de reconocimiento
+	 * Get recognition engine culture.
 	 * 
-	 * @returns	{string}		Cultura que está usando el motor de reconocimiento.
+	 * @returns	{string}		Culture that the recognition engine is using.
 	 */
 	get_engine_culture() 
 	{
@@ -221,13 +213,13 @@ class VoiceRecognizer extends events {
 	}
 
 	/**
-	 * @method	get_installed_cultures
+	 * @method	installed_cultures
 	 * 
-	 * Obtiene las culturas instaladas en el dispositivo.
+	 * Get the cultures installed on the device.
 	 * 
-	 * @returns	{array}		Array con las culturas instaladas
+	 * @returns	{array}			Array with installed cultures.
 	 */
-	get_installed_cultures()
+	installed_cultures()
 	{
 		// Detenemos si no se ha construido el addon
 
@@ -236,7 +228,7 @@ class VoiceRecognizer extends events {
 			return;
 		}
 
-		let cultures = addon.get_cultures();
+		let cultures = addon.get_installed_cultures();
 		
 		if( cultures != "" ) {
 			cultures = JSON.parse( cultures );
@@ -248,7 +240,7 @@ class VoiceRecognizer extends events {
 	/**
 	 * @method	_set_function_emit
 	 * 
-	 * Configura la función a la que el addon devolverá los resultados.
+	 * Configure the function to which the addon will return the results.
 	 * 
 	 * @returns	{void}
 	 */
@@ -260,20 +252,20 @@ class VoiceRecognizer extends events {
 		
 		// Le enviamos al addon el emiter
 
-		addon._call_emit(this._get_result.bind(this));
+		addon.result_function(this._get_result.bind(this));
 		this._setedFunction = true;
 	}
 
 	/**
 	 * @method	get_installed_cultures
 	 * 
-	 * Obtiene las culturas instaladas en el dispositivo al construir el addon.
+	 * Get the cultures installed on the device when building the addon.
 	 * 
-	 * @returns	{array}		Array con las culturas instaladas
+	 * @returns	{array}					Array with installed cultures.
 	 */
-	static get_installed_cultures_st()
+	static get_installed_cultures()
 	{
-		let cultures = addon._get_cultures();
+		let cultures = addon.get_installed_cultures();
 		
 		if( cultures != "" ) {
 			cultures = JSON.parse( cultures );
@@ -285,11 +277,11 @@ class VoiceRecognizer extends events {
 	/**
 	 * @method	_get_result
 	 * 
-	 * Metodo que es llamado desde el addon cuando el motor de reconociemiento devuelve algún
-	 * evento
+	 * Method that is called from the addon when the recognition engine returns some
+	 * event.
 	 * 
-	 * @param	{string}	evName		Nombre del evento al que hay que llamar
-	 * @param	{string}	result		Resultado del evento del motor de reconocimiento
+	 * @param	{string}	evName		Name of the event to call.
+	 * @param	{string}	result		Recognition engine event result
 	 * @returns	{void}
 	 */
 	_get_result( evName, result )
@@ -318,9 +310,9 @@ class VoiceRecognizer extends events {
 	/**
 	 * @method	_audio_state
 	 * 
-	 * Recibe el evento del estado del audio enviado por el motor de reconocimiento
+	 * Receive the audio status event sent by the recognition.
 	 * 
-	 * @param	{string}	result		Resultado del evento en JSON
+	 * @param	{string}	result		Event result in JSON
 	 * @returns	{void}
 	 */
 	_audio_state( result )
@@ -333,9 +325,9 @@ class VoiceRecognizer extends events {
 	/**
 	 * @method	_audio_level
 	 * 
-	 * Recibe el evento del nivel del audio enviado por el motor de reconocimiento
+	 * Receive the audio level event sent by the recognition engine.
 	 * 
-	 * @param	{string}	result		Resultado del evento en JSON
+	 * @param	{string}	result		Event result in JSON
 	 * @returns	{void}
 	 */
 	_audio_level( result )
@@ -347,9 +339,9 @@ class VoiceRecognizer extends events {
 	/**
 	 * @method	_audio_problem
 	 * 
-	 * Recibe el evento de problema de audio enviado por el motor de reconocimiento
+	 * You receive the audio problem event sent by the recognition engine
 	 * 
-	 * @param	{string}	result		Resultado del evento en JSON
+	 * @param	{string}	result		Event result in JSON
 	 * @returns	{void}
 	 */
 	_audio_problem( result )
@@ -362,9 +354,9 @@ class VoiceRecognizer extends events {
 	/**
 	 * @method	_detected
 	 * 
-	 * Recibe el evento de detección enviado por el motor de reconocimiento
+	 * Receive the detection event sent by the recognition engine.
 	 * 
-	 * @param	{string}	result		Resultado del evento en JSON
+	 * @param	{string}	result		Event result in JSON
 	 * @returns	{void}
 	 */
 	_detected( result )
@@ -377,9 +369,9 @@ class VoiceRecognizer extends events {
 	/**
 	 * @method	_recognized
 	 * 
-	 * Recibe el evento de texto reconocido enviado por el motor de reconocimiento
+	 * Receive the recognized text event sent by the recognition engine.
 	 * 
-	 * @param	{string}	result		Resultado del evento en JSON
+	 * @param	{string}	result		Event result in JSON
 	 * @returns	{void}
 	 */
 	_recognized( result )
@@ -396,9 +388,9 @@ class VoiceRecognizer extends events {
 	/**
 	 * @method	_hypothesized
 	 * 
-	 * Recibe el evento de texto hipotético enviado por el motor de reconocimiento
+	 * Receive the hypothetical text event sent by the recognition engine.
 	 * 
-	 * @param	{string}	result		Resultado del evento en JSON
+	 * @param	{string}	result		Event result in JSON
 	 * @returns	{void}
 	 */
 	_hypothesized( result )
@@ -411,9 +403,9 @@ class VoiceRecognizer extends events {
 	/**
 	 * @method	_rejected
 	 * 
-	 * Recibe el evento de rejected enviado por el motor de reconocimiento
+	 * Receive the rejected event sent by the recognition engine.
 	 * 
-	 * @param	{string}	result		Resultado del evento en JSON
+	 * @param	{string}	result		Event result in JSON
 	 * @returns	{void}
 	 */
 	_rejected( result )
@@ -430,9 +422,9 @@ class VoiceRecognizer extends events {
 	/**
 	 * @method	_completed
 	 * 
-	 * Recibe el evento de completado enviado por el motor de reconocimiento
+	 * Receive the completion event sent by the recognition engine.
 	 * 
-	 * @param	{string}	result		Resultado del evento en JSON
+	 * @param	{string}	result		Event result in JSON
 	 * @returns	{void}
 	 */
 	_completed( result )
@@ -445,9 +437,9 @@ class VoiceRecognizer extends events {
 	/**
 	 * @method	_error_addon
 	 * 
-	 * Maneja los errores devueltos por el addon
+	 * Handles the errors returned by the addon.
 	 * 
-	 * @param 	{string} 	error 			Error devuelto por el addin
+	 * @param 	{string} 	error 			Error returned by the addon.
 	 * @returns	{void}
 	 */
 	_error_addon( error )
@@ -459,10 +451,10 @@ class VoiceRecognizer extends events {
 	/**
 	 * @method	_construct_result
 	 * 
-	 * Construye el resultado devuelto por C# para devolverlo en un orden adecuado.
+	 * Construct the result returned by C# to return it in a proper order.
 	 * 
-	 * @param 	{object} 	result 			Resltado de un reconocimiento de voz
-	 * @returns	{object}					Objeto con el resultado ordenado debidamente.
+	 * @param 	{object} 	result 			Voice recognition result.
+	 * @returns	{object}					Object with the result properly ordered.
 	 */
 	_construct_result( result ) 
 	{

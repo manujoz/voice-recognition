@@ -1,15 +1,11 @@
 #pragma once
 
-#include <node_api.h>
-#include <msclr/marshal_cppstd.h>
-
 #include "includes.h"
-#include "loadAssemblies.h"
+#include "globals.h"
 #include "utils.h"
-#include "recognizer.h"
+#include "managedRecognizer.h"
 
-using namespace Recognizer;
-using namespace Utils;
+using namespace VoiceRecognizer;
 
 struct _func_result
 {
@@ -19,7 +15,4 @@ struct _func_result
     napi_threadsafe_function funcTh;
 } FuncResult;
 
-struct _globals
-{
-    std::string Culture;
-} Globals;
+System::String^ dispatchEventFromCs(System::String^ data, System::String^ evName);
