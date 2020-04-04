@@ -1,6 +1,6 @@
 {
   "name": "voice-recognition",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Voice recognition for node native",
   "keywords": [
     "voice",

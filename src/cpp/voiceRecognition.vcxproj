@@ -154,6 +154,7 @@
   <ItemGroup>
     <ClCompile Include="globals.cpp" />
     <ClCompile Include="loadAssemblies.cpp" />
+    <ClCompile Include="managedRecognizer.cpp" />
     <ClCompile Include="utils.cpp" />
     <ClCompile Include="addon.cpp">
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Async</ExceptionHandling>
@@ -176,6 +177,7 @@
     <ClInclude Include="globals.h" />
     <ClInclude Include="includes.h" />
     <ClInclude Include="loadAssemblies.h" />
+    <ClInclude Include="managedRecognizer.h" />
     <ClInclude Include="utils.h" />
     <ClInclude Include="addon.h" />
   </ItemGroup>
