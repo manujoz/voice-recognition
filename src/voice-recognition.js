@@ -185,11 +185,13 @@ class VoiceRecognizer extends events {
 		if( this.sameThread ) {
 			this._stoped = true;
 		} else {
-			this._worker.terminate().
-				then(() => {
-					this._worker = null;
-					
-				});
+			if( this._worker ) {
+				this._worker.terminate().
+					then(() => {
+						this._worker = null;
+						
+					});
+			}
 		}
 	}
 
