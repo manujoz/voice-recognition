@@ -341,6 +341,7 @@ healthchecksdb
 
 # Personalized
 _notes/
+.vs
 cs/
 build/*
 !build/[Rr]elease
