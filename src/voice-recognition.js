@@ -460,13 +460,10 @@ class VoiceRecognizer extends events {
 	 */
 	_construct_result( result ) 
 	{
-		let rJSON = JSON.parse( result );
+		let response = JSON.parse( result );
+		response.Semantics = JSON.parse( response.Semantics );
 
-		let constructed = {};
-		constructed.Result = rJSON.Result;
-		constructed.Result.Semantics = JSON.parse( rJSON.Semantics );
-
-		return constructed.Result;
+		return response;
 	}
 }
 
