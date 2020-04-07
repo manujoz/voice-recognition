@@ -129,14 +129,13 @@ namespace VoiceRecognizer
             string semantics = null;
             foreach (KeyValuePair<String, SemanticValue> child in sem)
             {
-                semantics += (semantics == null) ? "[" : ",";
-                semantics += "{\"" + child.Key + "\":\"" + child.Value.Value + "\"}";
-                //Console.WriteLine("Los litros a repostar son: {0} {1}", child.Key, child.Value.Value ?? "null");
+                semantics += (semantics == null) ? "{" : ",";
+                semantics += "\"" + child.Key + "\":\"" + child.Value.Value + "\"";
             }
 
             if (semantics != null)
             {
-                semantics += "]";
+                semantics += "}";
             }
 
             return semantics;

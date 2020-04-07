@@ -108,6 +108,14 @@ Indica si el motor de reconocimiento debe funcionar en el hilo principal de node
 recognizer.sameThread = true;
 ```
 
+### Escuchar el micrófono y reconocer el texto
+
+Para empezar el reconocimiento de voz ejecutar el método _listen_
+
+```javascript
+recognizer.listen();
+```
+
 ### Obtener culturas instaladas
 
 Se pueden obtener las culturas instaladas en el sistema operativo con el siguiente método:
@@ -330,6 +338,14 @@ Indicates whether the recognition engine should run on the main node thread or r
 recognizer.sameThread = true;
 ```
 
+### Listen
+
+To start voice recognizer exec _listen_ method.
+
+```javascript
+recognizer.listen();
+```
+
 ### Get installed cultures
 
 The cultures installed in the operating system can be obtained with the following method:
@@ -363,7 +379,6 @@ recognizer.add_grammar_from_xml( path.join( __dirname, "my-grammar.xml" ), "myGr
 
 ### Event listeners
 
-207/5000
 The recognizer will send events when the engine performs tasks such as returning a recognized text or sending a text that has not been recognized in the grammar.
 
 The events that are available for listening are:

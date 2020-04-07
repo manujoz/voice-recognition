@@ -24,9 +24,6 @@
     <ClCompile Include="addon.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="globals.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
     <ClCompile Include="managedRecognizer.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
