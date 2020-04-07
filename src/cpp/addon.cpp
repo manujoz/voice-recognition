@@ -13,7 +13,6 @@ void Init()
     CS::recognizer->emitEventToCpp = gcnew System::Func<System::String^, System::String^, System::String^>(dispatchEventFromCs);
 }
 
-// TODO: Si falla el reconocedor y no envia eventos probar quitando la comprobación de función vacia en (dispatchEventFromCs) Linea 27.
 /*
 * @function	triggerEventFromCs
 *
