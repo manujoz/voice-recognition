@@ -31,8 +31,8 @@ System::String^ dispatchEventFromCs(System::String^ data, System::String^ evName
     string stringData = Utils::convert_from_cs_string(data);
 
     // Convertimos los std::string en javascript Strings
-    napi_create_string_utf8(FuncResult.env, stringName.c_str(), NAPI_AUTO_LENGTH, &params[0]);
-    napi_create_string_utf8(FuncResult.env, stringData.c_str(), NAPI_AUTO_LENGTH, &params[1]);
+    napi_create_string_latin1(FuncResult.env, stringName.c_str(), NAPI_AUTO_LENGTH, &params[0]);
+    napi_create_string_latin1(FuncResult.env, stringData.c_str(), NAPI_AUTO_LENGTH, &params[1]);
 
     // Obtenemos la función de la referencia
     napi_value func;
