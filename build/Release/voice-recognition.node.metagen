@@ -3,7 +3,7 @@ Assembly voice-recognition, Version=0.0.*, Culture=Todos los idiomas (todos los 
 	hash=SHA1, flags=PublicKey
 Assembly mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
 	hash=None, flags=None
-Assembly CsVoiceRecognition, Version=1.0.*, Culture=Todos los idiomas (todos los países): 
+Assembly CsVoiceRecognition, Version=1.1.*, Culture=Todos los idiomas (todos los países): 
 	hash=None, flags=None
 Assembly System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
 	hash=None, flags=None

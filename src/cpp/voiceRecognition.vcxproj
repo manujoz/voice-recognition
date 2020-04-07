@@ -152,7 +152,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="globals.cpp" />
     <ClCompile Include="loadAssemblies.cpp" />
     <ClCompile Include="managedRecognizer.cpp" />
     <ClCompile Include="utils.cpp" />
